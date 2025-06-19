@@ -1,11 +1,20 @@
+#ifndef OBSTACLE_HPP
+#define OBSTACLE_HPP
+
 #include "Element.hpp"
 
 class Obstacle: public Element {
 private:
     bool _isTopPipe;
 
-    Obstacle(float x, float y, float width, float height, ALLEGRO_BITMAP* bitmap, bool isTopPipe) 
-        : Element(x, y, width, height, bitmap), _isTopPipe(isTopPipe) {}
+    Obstacle(float x, float y, float width, float height, float speed, ALLEGRO_BITMAP* bitmap, bool isTopPipe);
+    ~Obstacle();
 
-    float getIsTopPipe() const { return _isTopPipe; }
+public:
+    void draw() override;
+    void update(double deltaTime) override; // Move o cano para esquerda;
+    bool isOffScreen() const; // Verifica se o cano saiu da tela à esquerda
+    float getIsTopPipe() const;
 };
+
+#endif

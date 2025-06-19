@@ -1,13 +1,18 @@
+#ifndef BIRD_HPP
+#define BIRD_HPP
+
 #include "Element.hpp"
 
-class Bird : public Element{
+class Bird : public Element {
 private:
-    float _jumpForce, _verticalVelocity;
+    float _jumpForce;
+    float _verticalVelocity;
 
-    Bird(float x, float y, float width, float height, ALLEGRO_BITMAP* bitmap, float jumpForce,float verticalVelocity) 
-        : Element(x, y, width, height, bitmap), _jumpForce(jumpForce), _verticalVelocity(verticalVelocity) {}
+    Bird(float x, float y, float width, float height,float speed, ALLEGRO_BITMAP* bitmap, float jumpForce,float verticalVelocity);
+    ~Bird();
 
-
-    float getJumpForce() const { return _jumpForce; }
-    float getVerticalVelocity() const { return _verticalVelocity; }
+    float getJumpForce() const;
+    float getVerticalVelocity() const;
 };
+
+#endif
