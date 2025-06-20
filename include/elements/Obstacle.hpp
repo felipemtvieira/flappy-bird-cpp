@@ -25,6 +25,8 @@ public:
     void update(double deltaTime) override; // Move o cano para esquerda;
     bool isOffScreen() const; // Verifica se o cano saiu da tela à esquerda
     float getIsTopPipe() const;
+    void setScrollSpeed(float newSpeed);
+
 };
 
 #endif

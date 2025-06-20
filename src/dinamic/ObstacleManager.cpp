@@ -66,7 +66,7 @@ void ObstacleManager::spawnPipes() {
     float pipeX = this->_screenWidth - 100;
 
     if(this->_maxPipeGap == this->_minPipeGap){
-        gap == this->_maxPipeGap;
+        gap = this->_maxPipeGap;
     }
 
     float bottomPipeY = gap + topPipeY + this->_pipeWidth;
@@ -104,4 +104,16 @@ void ObstacleManager::spawnPipes() {
             false                       // _isTopPipe
         )
     );
+}
+
+void ObstacleManager::setScrollSpeed(float newSpeed) {
+    _pipeScrollSpeed = newSpeed;
+    // When scroll speed changes, existing pipes should also update their speed
+    for (const auto& pipe : pipes) {
+        pipe->setScrollSpeed(newSpeed); // Assuming Obstacle has a setScrollSpeed method
+    }
+}
+
+void ObstacleManager::setSpawnInterval(float newInterval) {
+    _spawnInterval = newInterval;
 }

@@ -58,6 +58,9 @@ private:
     const float _BASE_PIPE_SCROLL_SPEED = 150.0f;
     const float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
     const float _PIPE_WIDTH = 350.0f; // Keep this consistent
+    const float _MAX_PIPE_GAP = 50.0f;
+    const float _MIN_PIPE_GAP = 50.0f;
+
 
 public:
     Game(float width, float height);

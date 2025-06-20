@@ -39,7 +39,7 @@ class ObstacleManager : public DinamicManager {
 
         void update(double deltaTime);
         void draw();
-        void setPipeScrollSpeed(float newSpeed);
+        void setScrollSpeed(float newSpeed);
         void setSpawnInterval(float newInterval);
 
     private:

@@ -89,15 +89,15 @@ bool Game::initialize() {
     // PipeManager parameters: spawnInterval, speed, minGapY, maxGapY, pipeWidth, screenWidth, screenHeight, topSprite, bottomSprite
     this->_ObstacleManager = 
         std::make_unique<ObstacleManager>(
-            1.5f, // spawnInterval
-            150.0f, // speed
-            150.0f, // minGapY 
-            150.0f, // maxGapY
-            350.0f, // pipeWidth
-            _screenWidth,
-            _screenHeight,
-            _topPipeSprite,
-            _bottomPipeSprite
+            this->_BASE_PIPE_SPAWN_INTERVAL, // spawnInterval
+            this->_BASE_PIPE_SCROLL_SPEED, // speed
+            this->_MIN_PIPE_GAP, // minGapY 
+            this->_MAX_PIPE_GAP, // maxGapY
+            this->_PIPE_WIDTH, // pipeWidth
+            this->_screenWidth,
+            this->_screenHeight,
+            this->_topPipeSprite,
+            this->_bottomPipeSprite
         );
 
     // Ground parameters: x, y, width, height, scrollSpeed, sprite
@@ -110,6 +110,7 @@ bool Game::initialize() {
     // // ScoreManager
     // scoreManager = std::make_unique<ScoreManager>(gameFont);
 
+    this->applyDifficultyScalar();
     al_start_timer(timer);
     _lastFrameTime = al_get_time(); // Initialize last frame time
 
@@ -308,7 +309,18 @@ void Game::resetGame() {
     // bird->setVelocityY(0.0f);
 
     // Clear and reset pipes
-    this->_ObstacleManager = std::make_unique<ObstacleManager>(2.0f, 150.0f, 50.0f, 250.0f, 70.0f, _screenWidth, _screenHeight, _topPipeSprite, _bottomPipeSprite);
+    this->_ObstacleManager = 
+        std::make_unique<ObstacleManager>(
+            this->_BASE_PIPE_SPAWN_INTERVAL, // spawnInterval
+            this->_BASE_PIPE_SCROLL_SPEED, // speed
+            this->_MIN_PIPE_GAP, // minGapY 
+            this->_MAX_PIPE_GAP, // maxGapY
+            this->_PIPE_WIDTH, // pipeWidth
+            this->_screenWidth,
+            this->_screenHeight,
+            this->_topPipeSprite,
+            this->_bottomPipeSprite
+        );
 
     // Reset ground positions (if they moved off-screen)
     // ground1->setPosition(0, groundYPosition);
@@ -316,4 +328,19 @@ void Game::resetGame() {
 
     // scoreManager->resetScore();
     _lastFrameTime = al_get_time(); // Reset timer to prevent large deltaTime on restart
+}
+
+void Game::applyDifficultyScalar() {
+    this->_ObstacleManager->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar);
+    this->_ObstacleManager->setSpawnInterval(_BASE_PIPE_SPAWN_INTERVAL / _difficulty_scalar); // Spawn faster
+}
+
+// Increases the difficulty scalar and reapplies it
+void Game::increaseDifficulty(float increment) {
+    _difficulty_scalar += increment;
+    // Optional: Clamp difficulty_scalar to a maximum value
+    // if (_difficulty_scalar > 3.0f) _difficulty_scalar = 3.0f; // Example max
+
+    std::cout << "Difficulty increased! New scalar: " << _difficulty_scalar << std::endl;
+    applyDifficultyScalar(); // Reapply the new scalar to all objects
 }

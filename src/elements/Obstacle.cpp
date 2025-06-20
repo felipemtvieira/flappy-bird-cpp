@@ -44,3 +44,7 @@ bool Obstacle::isOffScreen() const {
 }
 
 float Obstacle::getIsTopPipe() const { return _isTopPipe; }
+
+void Obstacle::setScrollSpeed(float newSpeed) {
+    _speed = newSpeed;
+}
