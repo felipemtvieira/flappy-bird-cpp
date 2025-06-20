@@ -7,10 +7,20 @@ class Obstacle: public Element {
 private:
     bool _isTopPipe;
 
-    Obstacle(float x, float y, float width, float height, float speed, ALLEGRO_BITMAP* bitmap, bool isTopPipe);
-    ~Obstacle();
 
 public:
+    Obstacle(
+        float x, 
+        float y, 
+        float width, 
+        float height, 
+        float speed, 
+        ALLEGRO_BITMAP* bitmap, 
+        bool isTopPipe
+    );
+    
+    ~Obstacle();
+    
     void draw() override;
     void update(double deltaTime) override; // Move o cano para esquerda;
     bool isOffScreen() const; // Verifica se o cano saiu da tela à esquerda

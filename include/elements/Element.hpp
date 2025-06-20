@@ -10,7 +10,7 @@ protected:
     ALLEGRO_BITMAP* _bitmap;
 
 public:
-    Element(float x, float y, float width, float height, float speed, ALLEGRO_BITMAP* bitmap = nullptr);
+    Element(float x, float y, float width, float height, float speed, ALLEGRO_BITMAP* bitmap);
 
     virtual ~Element() {} //ATENCAO
 

@@ -16,15 +16,23 @@ class ObstacleManager : public DinamicManager {
         float _minPipeGap;
         float _maxPipeGap;
         float _pipeWidth;
-        float _screenHeight;
         float _screenWidth;
+        float _screenHeight;
 
         ALLEGRO_BITMAP* _topPipeSprite;
         ALLEGRO_BITMAP* _bottomPipeSprite;
 
     public:
         ObstacleManager(
-        float spawnInterval, float pipeScrollSpeed, float minPipeGap, float maxPipeGap, float pipeWidth, float screenWidth, float screenHeight, ALLEGRO_BITMAP* topSprite, ALLEGRO_BITMAP* bottomSprite
+            float spawnInterval, 
+            float pipeScrollSpeed,
+            float minPipeGap, 
+            float maxPipeGap, 
+            float pipeWidth, 
+            float screenWidth, 
+            float screenHeight, 
+            ALLEGRO_BITMAP* topSprite, 
+            ALLEGRO_BITMAP* bottomSprite
         );
 
         ~ObstacleManager();
