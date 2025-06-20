@@ -5,3 +5,11 @@
 
 //     float Bird::getJumpForce() const { return _jumpForce; }
 //     float Bird::getVerticalVelocity() const { return _verticalVelocity; }
+
+// void Bird::setGravity(float newGravity) {
+//     gravity = newGravity;
+// }
+
+// void Bird::setJumpForce(float newJumpForce) {
+//     jumpForce = newJumpForce;
+// }

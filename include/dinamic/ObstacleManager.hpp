@@ -18,7 +18,7 @@ class ObstacleManager : public DinamicManager {
         float _pipeWidth;
         float _screenWidth;
         float _screenHeight;
-
+        int _deletedPipes;
         ALLEGRO_BITMAP* _topPipeSprite;
         ALLEGRO_BITMAP* _bottomPipeSprite;
 
@@ -39,6 +39,8 @@ class ObstacleManager : public DinamicManager {
 
         void update(double deltaTime);
         void draw();
+        void setPipeScrollSpeed(float newSpeed);
+        void setSpawnInterval(float newInterval);
 
     private:
         void spawnPipes();

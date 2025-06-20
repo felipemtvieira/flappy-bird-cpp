@@ -9,11 +9,14 @@ Game::Game(float width, float height)
       timer(nullptr),
     //   gameFont(nullptr),
     //   birdSprite1(nullptr), birdSprite2(nullptr),
-      _topPipeSprite(nullptr), _bottomPipeSprite(nullptr),
+      _topPipeSprite(nullptr), 
+      _bottomPipeSprite(nullptr),
     //   groundSprite(nullptr), backgroundSprite(nullptr),
-      _screenWidth(width), _screenHeight(height),
-      lastFrameTime(0.0) {
-        groundYPosition = _screenHeight * 0.8f;
+      _screenWidth(width), 
+      _screenHeight(height),
+      _lastFrameTime(0.0), 
+      _difficulty_scalar(1.0f) {
+      _groundYPosition = _screenHeight * 0.8f;
     }
 
 Game::~Game() {
@@ -86,14 +89,14 @@ bool Game::initialize() {
     // PipeManager parameters: spawnInterval, speed, minGapY, maxGapY, pipeWidth, screenWidth, screenHeight, topSprite, bottomSprite
     this->_ObstacleManager = 
         std::make_unique<ObstacleManager>(
-            1.5f,
-            150.0f, 
-            25.0f, 
-            150.0f, 
-            350.0f, 
-            _screenWidth, 
-            _screenHeight, 
-            _topPipeSprite, 
+            1.5f, // spawnInterval
+            150.0f, // speed
+            150.0f, // minGapY 
+            150.0f, // maxGapY
+            350.0f, // pipeWidth
+            _screenWidth,
+            _screenHeight,
+            _topPipeSprite,
             _bottomPipeSprite
         );
 
@@ -108,7 +111,7 @@ bool Game::initialize() {
     // scoreManager = std::make_unique<ScoreManager>(gameFont);
 
     al_start_timer(timer);
-    lastFrameTime = al_get_time(); // Initialize last frame time
+    _lastFrameTime = al_get_time(); // Initialize last frame time
 
     return true;
 }
@@ -120,8 +123,8 @@ void Game::run() {
         al_wait_for_event(eventQueue, &event);
 
         double currentTime = al_get_time();
-        double deltaTime = currentTime - lastFrameTime;
-        lastFrameTime = currentTime;
+        double deltaTime = currentTime - _lastFrameTime;
+        _lastFrameTime = currentTime;
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
             update(deltaTime);
@@ -245,8 +248,8 @@ bool Game::loadAssets() {
     // birdAnimationFrames.push_back(birdSprite2);
 
     // Load Pipe Sprites (assuming you have images for these)
-    _topPipeSprite = al_load_bitmap("assets/pipe.png");
-    _bottomPipeSprite = al_load_bitmap("assets/pipe.png");
+    _topPipeSprite = al_load_bitmap("assets/top_pipe.png");
+    _bottomPipeSprite = al_load_bitmap("assets/bottom_pipe.png");
     if (!_topPipeSprite || !_bottomPipeSprite) {
         std::cerr << "Failed to load pipe sprites! Using fallback rectangles." << std::endl;
         // Not returning false, just warning, so fallback rectangles are used
@@ -312,5 +315,5 @@ void Game::resetGame() {
     // ground2->setPosition(screenWidth, groundYPosition);
 
     // scoreManager->resetScore();
-    lastFrameTime = al_get_time(); // Reset timer to prevent large deltaTime on restart
+    _lastFrameTime = al_get_time(); // Reset timer to prevent large deltaTime on restart
 }

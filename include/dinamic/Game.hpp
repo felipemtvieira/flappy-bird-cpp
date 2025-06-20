@@ -46,8 +46,18 @@ private:
 
     float _screenWidth;
     float _screenHeight;
-    float groundYPosition; // Y coordinate where the ground starts
-    double lastFrameTime; // For calculating deltaTime
+    float _groundYPosition; // Y coordinate where the ground starts
+    float _difficulty_scalar; // Multiplicador de dificuldade para acelerar os elementos visuais proporcionalmente
+    double _lastFrameTime; // For calculating deltaTime
+
+    int _last_difficulty_score_threshold; // To prevent rapid difficulty increase on same score
+
+    // Base values for game properties
+    const float _BASE_GRAVITY = 900.0f;
+    const float _BASE_JUMP_FORCE = 400.0f;
+    const float _BASE_PIPE_SCROLL_SPEED = 150.0f;
+    const float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
+    const float _PIPE_WIDTH = 350.0f; // Keep this consistent
 
 public:
     Game(float width, float height);
@@ -69,6 +79,8 @@ private: // Helper methods, typically private
     void drawPlaying();
     void drawMenu();
     void drawGameOver();
+    void applyDifficultyScalar(); // Applies the current difficulty_scalar to game objects
+    void increaseDifficulty(float increment);
 };
 
 #endif // GAME_HPP
