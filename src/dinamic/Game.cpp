@@ -10,14 +10,17 @@ Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
       eventQueue(nullptr),
       timer(nullptr),
     //   gameFont(nullptr),
-    //   birdSprite1(nullptr), birdSprite2(nullptr),
+      _birdSprite1(nullptr), 
+      _birdSprite2(nullptr),
+    //   _birdSprite3(nullptr),
       _ground1(nullptr),
       _topPipeSprite(nullptr), 
       _bottomPipeSprite(nullptr),
       _groundSprite(nullptr), 
       _backgroundSprite(nullptr),
       _difficulty_scalar(1.0f),
-      _lastFrameTime(0.0)
+      _lastFrameTime(0.0),
+      _Bird(nullptr)
       {
         _groundYPosition = SCREEN_HEIGHT * 0.8f; // O chão deve ocupar 20% da tela
     }
@@ -135,6 +138,17 @@ bool Game::initialize() {
         _groundSprite            // The loaded ground sprite
     );
 
+    _Bird = std::make_unique<Bird>(
+        50,                             // x position
+        _screenHeight / 2 - (_BIRD_HEIGHT / 2), // y position (roughly center vertically)
+        _BIRD_WIDTH,                    // width
+        _BIRD_HEIGHT,                   // height
+        _BASE_GRAVITY,                  // base gravity
+        _BASE_JUMP_FORCE,               // base jump force
+        _birdAnimationFrames,           // vector of animation bitmaps
+        this->_screenWidth, this->_screenHeight // Pass screen dimensions to Element
+    );
+
     // // ScoreManager
     // scoreManager = std::make_unique<ScoreManager>(gameFont);
 
@@ -159,9 +173,23 @@ void Game::run() {
             update(deltaTime);
             draw();
         } else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            // handleInput(event);
+            handleInput(event);
         } else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             running = false;
+        }
+    }
+}
+
+void Game::handleInput(ALLEGRO_EVENT& event) {
+    if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+        if (currentState == MENU) { // If you re-introduce a menu
+            currentState = PLAYING;
+            resetGame();
+        } else if (currentState == PLAYING) {
+            _Bird->jump(); // Make bird jump
+        } else if (currentState == GAME_OVER) { // If you re-introduce game over
+            currentState = PLAYING; // Or MENU
+            resetGame();
         }
     }
 }
@@ -185,7 +213,7 @@ void Game::updatePlaying(double deltaTime) {
     // _Background->update(deltaTime);
     this->_ground1->update(deltaTime);
     this->_ObstacleManager->update(deltaTime);
-    // bird->update(deltaTime);
+    this->_Bird->update(deltaTime);
 
     // Check for collisions
     // if (collisionManager.checkCollision(*bird, *pipeManager, groundYPosition)) {
@@ -230,7 +258,6 @@ void Game::updatePlaying(double deltaTime) {
 
 void Game::draw() {
     al_clear_to_color(al_map_rgb(0, 0, 0)); // Clear screen to black
-    // std::cout << "Game.cpp Game::draw() " << this->_screenWidth << std::endl;
 
     switch (currentState) {
         case MENU:
@@ -252,22 +279,12 @@ void Game::drawPlaying() {
     this->_Background->draw();
     this->_ObstacleManager->draw();
     this->_ground1->draw();
-    // bird->draw();
+    this->_Bird->draw();
     // scoreManager->draw();
 }
 
 bool Game::loadAssets() {
-    // Load Bird Sprites
-    // birdSprite1 = al_load_bitmap("assets/bird_frame_1.png");
-    // birdSprite2 = al_load_bitmap("assets/bird_frame_2.png");
-    // if (!birdSprite1 || !birdSprite2) {
-    //     std::cerr << "Failed to load bird sprites!" << std::endl;
-    //     return false;
-    // }
-    // birdAnimationFrames.push_back(birdSprite1);
-    // birdAnimationFrames.push_back(birdSprite2);
-
-    // Load Pipe Sprites (assuming you have images for these)
+    // Load Pipe Sprites
     _topPipeSprite = al_load_bitmap("assets/top_pipe.png");
     _bottomPipeSprite = al_load_bitmap("assets/bottom_pipe.png");
     if (!_topPipeSprite || !_bottomPipeSprite) {
@@ -306,6 +323,20 @@ bool Game::loadAssets() {
     //         return false;
     //     }
     // }
+    
+// ALLEGRO_BITMAP* frame1_sub = al_create_sub_bitmap(master_sheet, x_offset_frame1, y_offset_frame1, 32, 24);
+// ALLEGRO_BITMAP* frame2_sub = al_create_sub_bitmap(master_sheet, x_offset_frame2, y_offset_frame2, 32, 24);
+
+    // NEW: Load Bird Sprites
+    _birdSprite1 = al_load_bitmap("assets/bird_1.png"); // Assuming you have these
+    _birdSprite2 = al_load_bitmap("assets/bird_1.png");
+    if (!_birdSprite1 || !_birdSprite2) {
+        std::cerr << "Failed to load bird sprites! Using fallback rectangle." << std::endl;
+        _birdSprite1 = nullptr; _birdSprite2 = nullptr;
+    } else {
+        _birdAnimationFrames.push_back(_birdSprite1);
+        _birdAnimationFrames.push_back(_birdSprite2);
+    }
 
     if (!this->_topPipeSprite || !this->_bottomPipeSprite || !this->_backgroundSprite || !this->_groundSprite) { // Added _groundSprite check
         std::cerr << "One or more essential assets failed to load. Returning false." << std::endl;
@@ -316,8 +347,9 @@ bool Game::loadAssets() {
 }
 
 void Game::destroyAssets() {
-    // if (birdSprite1) al_destroy_bitmap(birdSprite1);
-    // if (birdSprite2) al_destroy_bitmap(birdSprite2);
+    if (this->_birdSprite1) al_destroy_bitmap(this->_birdSprite1);
+    if (this->_birdSprite2) al_destroy_bitmap(this->_birdSprite2);
+    // if (this->_birdSprite3) al_destroy_bitmap(this->_birdSprite3);
     if (this->_topPipeSprite) al_destroy_bitmap(this->_topPipeSprite);
     if (this->_bottomPipeSprite) al_destroy_bitmap(this->_bottomPipeSprite);
     if (this->_groundSprite) al_destroy_bitmap(this->_groundSprite);
@@ -358,8 +390,10 @@ void Game::resetGame() {
 
 void Game::applyDifficultyScalar() {
     this->_ObstacleManager->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar);
-    this->_ObstacleManager->setSpawnInterval(_BASE_PIPE_SPAWN_INTERVAL / _difficulty_scalar); // Spawn faster
+    this->_ObstacleManager->setSpawnInterval(_BASE_PIPE_SPAWN_INTERVAL / _difficulty_scalar);
     this->_ground1->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar);
+    this->_Bird->setGravity(_BASE_GRAVITY * _difficulty_scalar);
+    this->_Bird->setJumpForce(_BASE_JUMP_FORCE * _difficulty_scalar);
 
 }
 

@@ -79,7 +79,7 @@ void ObstacleManager::spawnPipes() {
 
 
     // float original_topPipeSprite_bitmap_width = (float)al_get_bitmap_width(this->_topPipeSprite);
-    float original_topPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
+    // float original_topPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
     // Top pipe: extends from the top of the screen down to `gapTopY`
     // Its actual Y position will be `gapTopY - screenHeight` since the image starts at Y=0
     pipes.push_back(
@@ -117,9 +117,8 @@ void ObstacleManager::spawnPipes() {
 
 void ObstacleManager::setScrollSpeed(float newSpeed) {
     _pipeScrollSpeed = newSpeed;
-    // When scroll speed changes, existing pipes should also update their speed
     for (const auto& pipe : pipes) {
-        pipe->setScrollSpeed(newSpeed); // Assuming Obstacle has a setScrollSpeed method
+        pipe->setScrollSpeed(newSpeed);
     }
 }
 

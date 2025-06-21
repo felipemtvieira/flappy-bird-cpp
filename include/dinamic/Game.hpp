@@ -7,7 +7,8 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
-// #include "Bird.hpp"
+#include "AbstractManager.hpp" // Inherit from AbstractManager
+#include "Bird.hpp"
 #include "ObstacleManager.hpp"
 #include "Ground.hpp"
 #include "Background.hpp"
@@ -31,7 +32,7 @@ private:
     ALLEGRO_TIMER* timer;
 
     std::unique_ptr<ObstacleManager> _ObstacleManager;
-    // std::unique_ptr<Bird> bird;
+    std::unique_ptr<Bird> _Bird;
     std::unique_ptr<Ground> _ground1; // Two ground segments for continuous scroll
     std::unique_ptr<Background> _Background;
     // CollisionManager collisionManager; // No unique_ptr, as it's simple and doesn't own resources
@@ -42,8 +43,9 @@ private:
     ALLEGRO_BITMAP* _bottomPipeSprite;
     ALLEGRO_BITMAP* _groundSprite;
     ALLEGRO_BITMAP* _backgroundSprite;
-    //  birdSprite1, *birdSprite2, *groundSprite, 
-    // std::vector<ALLEGRO_BITMAP*> birdAnimationFrames;
+    ALLEGRO_BITMAP* _birdSprite1;
+    ALLEGRO_BITMAP* _birdSprite2; 
+    std::vector<ALLEGRO_BITMAP*> _birdAnimationFrames;
 
     float _groundYPosition; // Y coordinate where the ground starts
     float _difficulty_scalar; // Multiplicador de dificuldade para acelerar os elementos visuais proporcionalmente
@@ -52,15 +54,19 @@ private:
     int _last_difficulty_score_threshold; // To prevent rapid difficulty increase on same score
 
     // Base values for game properties
-    const float _BASE_GRAVITY = 900.0f;
-    const float _BASE_JUMP_FORCE = 400.0f;
-    const float _BASE_PIPE_SCROLL_SPEED = 150.0f;
+    static constexpr float _BASE_PIPE_SCROLL_SPEED = 150.0f;
     // const float _BASE_GROUND_SCROLL_SPEED = 150.0f;
-    const float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
-    const float _PIPE_WIDTH = 350.0f; // Keep this consistent
-    const float _PIPE_HEIGHT = 575.0f; // Keep this consistent
-    const float _MAX_PIPE_GAP = 50.0f;
-    const float _MIN_PIPE_GAP = 50.0f;
+    static constexpr float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
+    static constexpr float _PIPE_WIDTH = 350.0f; // Keep this consistent
+    static constexpr float _PIPE_HEIGHT = 575.0f; // Keep this consistent
+    static constexpr float _MAX_PIPE_GAP = 50.0f;
+    static constexpr float _MIN_PIPE_GAP = 50.0f;
+
+    // NEW BIRD-RELATED CONSTANTS
+    static constexpr float _BASE_GRAVITY = 900.0f;
+    static constexpr float _BASE_JUMP_FORCE = 300.0f;
+    static constexpr float _BIRD_WIDTH = 70.0f; // Logical width
+    static constexpr float _BIRD_HEIGHT = 60.0f; // Logical height
 
 
 public:
@@ -81,8 +87,8 @@ private: // Helper methods, typically private
     // Helper methods for different game states
     void updatePlaying(double deltaTime);
     void drawPlaying();
-    void drawMenu();
-    void drawGameOver();
+    // void drawMenu();
+    // void drawGameOver();
     void applyDifficultyScalar(); // Applies the current difficulty_scalar to game objects
     void increaseDifficulty(float increment);
 };

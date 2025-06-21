@@ -1,34 +1,43 @@
-// #ifndef BIRD_HPP
-// #define BIRD_HPP
+#ifndef BIRD_HPP
+#define BIRD_HPP
 
-// #include "VisualElement.hpp"
-// #include <vector>
+#include "Element.hpp"
+#include <vector>
 
-// class Bird : public VisualElement {
-// private:
-//     float velocityY;
-//     float gravity;   // Base gravity
-//     float jumpForce; // Base jump force
-//     std::vector<ALLEGRO_BITMAP*> animationFrames;
-//     int currentFrame;
-//     double animationTimer;
-//     double frameDuration;
+class Bird : public Element {
+private:
+    // float _velocityY; // <-- REMOVE THIS MEMBER
+    float _gravity;
+    float _jumpForce;
+    std::vector<ALLEGRO_BITMAP*> _animationFrames;
+    int _currentFrame;
+    double _animationTimer;
+    double _frameDuration;
 
-// public:
-//     // Constructor now takes base gravity and jumpForce
-//     Bird(float x, float y, float width, float height, float baseGravity, float baseJumpForce, const std::vector<ALLEGRO_BITMAP*>& frames);
-//     ~Bird();
+public:
+    Bird(
+        float x, 
+        float y, 
+        float width, 
+        float height, 
+        float baseGravity, 
+        float baseJumpForce,
+        const std::vector<ALLEGRO_BITMAP*>& animationFrames,
+        float screenWidth, 
+        float screenHeight
+    );
+    ~Bird();
 
-//     void draw() override;
-//     void update(double deltaTime) override;
-//     void jump();
+    void draw() override;
+    void update(double deltaTime) override;
+    void jump();
 
-//     float getVelocityY() const;
-//     void setVelocityY(float vel);
+    // The getVelocityY() and setVelocityY() now operate on the inherited _speed
+    float getVelocityY() const { return _speed; } // <-- RETURN _speed
+    void setVelocityY(float vel) { _speed = vel; } // <-- SET _speed
 
-//     // NEW SETTERS
-//     void setGravity(float newGravity);
-//     void setJumpForce(float newJumpForce);
-// };
+    void setGravity(float newGravity);
+    void setJumpForce(float newJumpForce);
+};
 
-// #endif // BIRD_HPP
+#endif // BIRD_HPP
