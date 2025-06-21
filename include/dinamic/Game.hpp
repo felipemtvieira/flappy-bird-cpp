@@ -9,8 +9,8 @@
 
 // #include "Bird.hpp"
 #include "ObstacleManager.hpp"
-// #include "Ground.hpp"
-// #include "Background.hpp"
+#include "Ground.hpp"
+#include "Background.hpp"
 // #include "CollisionManager.hpp"
 // #include "ScoreManager.hpp"
 
@@ -23,7 +23,7 @@ enum GameState {
     GAME_OVER
 };
 
-class Game {
+class Game : public AbstractManager {
 private:
     GameState currentState;
     ALLEGRO_DISPLAY* display;
@@ -32,20 +32,19 @@ private:
 
     std::unique_ptr<ObstacleManager> _ObstacleManager;
     // std::unique_ptr<Bird> bird;
-    // std::unique_ptr<Ground> ground1, ground2; // Two ground segments for continuous scroll
-    // std::unique_ptr<Background> background;
+    std::unique_ptr<Ground> _ground1, _ground2; // Two ground segments for continuous scroll
+    std::unique_ptr<Background> _Background;
     // CollisionManager collisionManager; // No unique_ptr, as it's simple and doesn't own resources
     // std::unique_ptr<ScoreManager> scoreManager; // Managed by Game
 
     // ALLEGRO_FONT* gameFont;
     ALLEGRO_BITMAP* _topPipeSprite;
     ALLEGRO_BITMAP* _bottomPipeSprite;
-
-    //  birdSprite1, *birdSprite2, *groundSprite, *backgroundSprite;
+    ALLEGRO_BITMAP* _groundSprite;
+    ALLEGRO_BITMAP* _backgroundSprite;
+    //  birdSprite1, *birdSprite2, *groundSprite, 
     // std::vector<ALLEGRO_BITMAP*> birdAnimationFrames;
 
-    float _screenWidth;
-    float _screenHeight;
     float _groundYPosition; // Y coordinate where the ground starts
     float _difficulty_scalar; // Multiplicador de dificuldade para acelerar os elementos visuais proporcionalmente
     double _lastFrameTime; // For calculating deltaTime
@@ -56,6 +55,7 @@ private:
     const float _BASE_GRAVITY = 900.0f;
     const float _BASE_JUMP_FORCE = 400.0f;
     const float _BASE_PIPE_SCROLL_SPEED = 150.0f;
+    // const float _BASE_GROUND_SCROLL_SPEED = 150.0f;
     const float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
     const float _PIPE_WIDTH = 350.0f; // Keep this consistent
     const float _MAX_PIPE_GAP = 50.0f;

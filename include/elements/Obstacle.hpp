@@ -14,6 +14,8 @@ public:
         float y, 
         float width, 
         float height, 
+        float screenWidth, 
+        float screenHeight, 
         float speed, 
         ALLEGRO_BITMAP* bitmap, 
         bool isTopPipe

@@ -7,10 +7,13 @@ Obstacle::Obstacle(
     float y, 
     float width, 
     float height, 
+    float screenWidth, 
+    float screenHeight, 
     float speed, 
     ALLEGRO_BITMAP* bitmap, 
     bool isTopPipe
-    ) : Element(x, y, width, height, speed, bitmap), _isTopPipe(isTopPipe) {}
+    ) : Element(x, y, width, height, screenWidth, screenHeight, speed, bitmap), 
+    _isTopPipe(isTopPipe) {}
 
 Obstacle::~Obstacle(){ 
     std::cout << "Destruindo obstáculo" << std::endl; 

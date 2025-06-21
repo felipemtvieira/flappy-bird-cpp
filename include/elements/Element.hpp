@@ -1,3 +1,6 @@
+#ifndef ELEMENT_HPP
+#define ELEMENT_HPP
+
 #include <allegro5/allegro.h>
 
 class Element {
@@ -6,11 +9,22 @@ protected:
     float _y;
     float _width;
     float _height;
+    float _screenWidth;
+    float _screenHeight;
     float _speed;
     ALLEGRO_BITMAP* _bitmap;
 
 public:
-    Element(float x, float y, float width, float height, float speed, ALLEGRO_BITMAP* bitmap);
+    Element(
+        float x, 
+        float y, 
+        float width, 
+        float height, 
+        float screenWidth, 
+        float screenHeight, 
+        float speed, 
+        ALLEGRO_BITMAP* bitmap
+    );
 
     virtual ~Element() {} //ATENCAO
 
@@ -23,3 +37,5 @@ public:
     float getWidth() const;
     float getHeight() const;
 };
+
+#endif

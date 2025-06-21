@@ -2,21 +2,25 @@
 #include <iostream> // For debugging output
 
 // Constructor
-Game::Game(float width, float height)
-    : currentState(PLAYING),
+Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
+    : 
+      AbstractManager(1, SCREEN_WIDTH, SCREEN_HEIGHT), 
+      currentState(PLAYING),
       display(nullptr),
       eventQueue(nullptr),
       timer(nullptr),
     //   gameFont(nullptr),
     //   birdSprite1(nullptr), birdSprite2(nullptr),
+      _ground1(nullptr), // Initialize ground unique_ptr
+      _ground2(nullptr),
       _topPipeSprite(nullptr), 
       _bottomPipeSprite(nullptr),
-    //   groundSprite(nullptr), backgroundSprite(nullptr),
-      _screenWidth(width), 
-      _screenHeight(height),
-      _lastFrameTime(0.0), 
-      _difficulty_scalar(1.0f) {
-      _groundYPosition = _screenHeight * 0.8f;
+      _groundSprite(nullptr), 
+      _backgroundSprite(nullptr),
+      _difficulty_scalar(1.0f),
+      _lastFrameTime(0.0)
+      {
+        _groundYPosition = SCREEN_HEIGHT * 0.8f;
     }
 
 Game::~Game() {
@@ -52,7 +56,7 @@ bool Game::initialize() {
         return false;
     }
 
-    display = al_create_display(_screenWidth, _screenHeight);
+    display = al_create_display(this->_screenWidth, _screenHeight);
     if (!display) {
         std::cerr << "Failed to create display!" << std::endl;
         return false;
@@ -85,8 +89,7 @@ bool Game::initialize() {
     // Initialize game objects after assets are loaded
     // Bird parameters: x, y, width, height, gravity, jumpForce, animationFrames
     // bird = std::make_unique<Bird>(50, screenHeight / 2 - 20, 40, 30, 900.0f, 400.0f, birdAnimationFrames);
-
-    // PipeManager parameters: spawnInterval, speed, minGapY, maxGapY, pipeWidth, screenWidth, screenHeight, topSprite, bottomSprite
+    
     this->_ObstacleManager = 
         std::make_unique<ObstacleManager>(
             this->_BASE_PIPE_SPAWN_INTERVAL, // spawnInterval
@@ -100,12 +103,48 @@ bool Game::initialize() {
             this->_bottomPipeSprite
         );
 
-    // Ground parameters: x, y, width, height, scrollSpeed, sprite
-    // ground1 = std::make_unique<Ground>(0, groundYPosition, screenWidth, screenHeight - groundYPosition, 150.0f, groundSprite);
-    // ground2 = std::make_unique<Ground>(screenWidth, groundYPosition, screenWidth, screenHeight - groundYPosition, 150.0f, groundSprite); // Second ground segment
-
+    float backgroundY = -1 * (this->_screenHeight - _groundYPosition) + 5.0; //Cálculo necessário para o bitmap do fundo "encontrar" com o bitmap do chão corretamente
     // Background parameters: x, y, width, height, scrollSpeed, sprite
-    // background = std::make_unique<Background>(0, 0, screenWidth, screenHeight, 50.0f, backgroundSprite);
+    this->_Background = 
+        std::make_unique<Background>(
+            0, // _x
+            backgroundY, // _y
+            this->_screenWidth,
+            this->_screenHeight,
+            this->_screenWidth,
+            this->_screenHeight,
+            50.0f,
+            this->_backgroundSprite
+        );
+
+    // Use _bitmap from Element
+    float original_bitmap_width = (float)al_get_bitmap_width(_groundSprite);
+    float original_bitmap_height = (float)al_get_bitmap_height(_groundSprite);
+
+    std::cout << original_bitmap_width << this->_screenWidth << std::endl;
+
+    // Initialize Ground (UNCOMMENT THIS)
+    this->_ground1 = std::make_unique<Ground>(
+        0,                       // x (starts at left edge)
+        _groundYPosition,        // y (starts at the ground line)
+        original_bitmap_width,
+        original_bitmap_height,
+        _screenWidth,            // width (full screen width for tiling)
+        _screenHeight,
+        _BASE_PIPE_SCROLL_SPEED, // Base ground scroll speed
+        _groundSprite            // The loaded ground sprite
+    );
+
+    this->_ground2 = std::make_unique<Ground>(
+        _screenWidth,            // x (starts immediately to the right of the first ground)
+        _groundYPosition,
+        original_bitmap_width,
+        original_bitmap_height,
+        _screenWidth,
+        _screenHeight,
+        _BASE_PIPE_SCROLL_SPEED,
+        _groundSprite
+    );
 
     // // ScoreManager
     // scoreManager = std::make_unique<ScoreManager>(gameFont);
@@ -154,18 +193,19 @@ void Game::update(double deltaTime) {
 }
 
 void Game::updatePlaying(double deltaTime) {
-    // background->update(deltaTime);
-    // ground1->update(deltaTime);
-    // ground2->update(deltaTime);
-    _ObstacleManager->update(deltaTime);
+    // _Background->update(deltaTime);
+    this->_ground1->update(deltaTime);
+    this->_ground2->update(deltaTime);
+    this->_ObstacleManager->update(deltaTime);
     // bird->update(deltaTime);
 
-    // Ground continuous scrolling logic
-    // if (ground1->getX() + ground1->getWidth() < 0) {
-    //     ground1->setPosition(ground2->getX() + ground2->getWidth(), groundYPosition);
+    // Ground continuous scrolling logic (UNCOMMENT AND FIX)
+    // When a ground segment moves off-screen, reposition it to the right of the other
+    // if (_ground1->getX() + _ground1->getWidth() < 0) {
+    //     _ground1->setPosition(_ground2->getX() + _ground2->getWidth(), _groundYPosition);
     // }
-    // if (ground2->getX() + ground2->getWidth() < 0) {
-    //     ground2->setPosition(ground1->getX() + ground1->getWidth(), groundYPosition);
+    // if (_ground2->getX() + _ground2->getWidth() < 0) {
+    //     _ground2->setPosition(_ground1->getX() + _ground1->getWidth(), _groundYPosition);
     // }
 
     // Check for collisions
@@ -211,6 +251,7 @@ void Game::updatePlaying(double deltaTime) {
 
 void Game::draw() {
     al_clear_to_color(al_map_rgb(0, 0, 0)); // Clear screen to black
+    // std::cout << "Game.cpp Game::draw() " << this->_screenWidth << std::endl;
 
     switch (currentState) {
         case MENU:
@@ -229,10 +270,10 @@ void Game::draw() {
 }
 
 void Game::drawPlaying() {
-    // background->draw();
-    _ObstacleManager->draw();
-    // ground1->draw();
-    // ground2->draw();
+    this->_Background->draw();
+    this->_ObstacleManager->draw();
+    this->_ground1->draw();
+    this->_ground2->draw();
     // bird->draw();
     // scoreManager->draw();
 }
@@ -256,25 +297,26 @@ bool Game::loadAssets() {
         // Not returning false, just warning, so fallback rectangles are used
         _topPipeSprite = nullptr;
         _bottomPipeSprite = nullptr;
+        std::cout << "LoadAssets" << std::endl;
     }
 
     // Load Ground Sprite
-    // groundSprite = al_load_bitmap("assets/ground.png");
-    // if (!groundSprite) {
-    //     std::cerr << "Failed to load ground sprite! Using fallback rectangle." << std::endl;
-    //     groundSprite = nullptr;
-    // } else {
-    //     // Adjust groundYPosition based on ground sprite's actual height if loaded
-    //     // groundYPosition = screenHeight - al_get_bitmap_height(groundSprite);
-    // }
+    this->_groundSprite = al_load_bitmap("assets/ground.png");
+    if (!this->_groundSprite) {
+        std::cerr << "Failed to load ground sprite! Using fallback rectangle." << std::endl;
+        this->_groundSprite = nullptr;
+    } else {
+        // Adjust groundYPosition based on ground sprite's actual height if loaded
+        // groundYPosition = screenHeight - al_get_bitmap_height(groundSprite);
+    }
 
 
     // Load Background Sprite
-    // backgroundSprite = al_load_bitmap("assets/background.png");
-    // if (!backgroundSprite) {
-    //     std::cerr << "Failed to load background sprite! Using fallback color." << std::endl;
-    //     backgroundSprite = nullptr;
-    // }
+    this->_backgroundSprite = al_load_bitmap("assets/background.png");
+    if (!this->_backgroundSprite) {
+        std::cerr << "Failed to load background sprite! Using fallback color." << std::endl;
+        this->_backgroundSprite = nullptr;
+    }
 
     // // Load Font
     // gameFont = al_load_font("assets/arial.ttf", 36, 0); // Assuming Arial font exists
@@ -287,15 +329,20 @@ bool Game::loadAssets() {
     //     }
     // }
 
+    if (!this->_topPipeSprite || !this->_bottomPipeSprite || !this->_backgroundSprite || !this->_groundSprite) { // Added _groundSprite check
+        std::cerr << "One or more essential assets failed to load. Returning false." << std::endl;
+        return false;
+    }
+
     return true;
 }
 
 void Game::destroyAssets() {
     // if (birdSprite1) al_destroy_bitmap(birdSprite1);
     // if (birdSprite2) al_destroy_bitmap(birdSprite2);
-    if (_topPipeSprite) al_destroy_bitmap(_topPipeSprite);
-    if (_bottomPipeSprite) al_destroy_bitmap(_bottomPipeSprite);
-    // if (groundSprite) al_destroy_bitmap(groundSprite);
+    if (this->_topPipeSprite) al_destroy_bitmap(this->_topPipeSprite);
+    if (this->_bottomPipeSprite) al_destroy_bitmap(this->_bottomPipeSprite);
+    if (this->_groundSprite) al_destroy_bitmap(this->_groundSprite);
     // if (backgroundSprite) al_destroy_bitmap(backgroundSprite);
     // if (gameFont) al_destroy_font(gameFont);
 
@@ -333,6 +380,9 @@ void Game::resetGame() {
 void Game::applyDifficultyScalar() {
     this->_ObstacleManager->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar);
     this->_ObstacleManager->setSpawnInterval(_BASE_PIPE_SPAWN_INTERVAL / _difficulty_scalar); // Spawn faster
+    this->_ground1->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar); // UNCOMMENT THIS
+    this->_ground2->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar); // UNCOMMENT THIS
+
 }
 
 // Increases the difficulty scalar and reapplies it

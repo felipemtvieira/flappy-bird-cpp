@@ -2,12 +2,12 @@
 #define OBSTACLE_MANAGER_HPP
 
 #include "Obstacle.hpp"
-#include "DinamicManager.hpp"
+#include "AbstractManager.hpp"
 #include <iostream>
 #include <vector>
 #include <memory>
 
-class ObstacleManager : public DinamicManager {
+class ObstacleManager : public AbstractManager {
     private:
         std::vector<std::unique_ptr<Obstacle>> pipes;
         float _spawnTimer;
@@ -16,8 +16,6 @@ class ObstacleManager : public DinamicManager {
         float _minPipeGap;
         float _maxPipeGap;
         float _pipeWidth;
-        float _screenWidth;
-        float _screenHeight;
         int _deletedPipes;
         ALLEGRO_BITMAP* _topPipeSprite;
         ALLEGRO_BITMAP* _bottomPipeSprite;
