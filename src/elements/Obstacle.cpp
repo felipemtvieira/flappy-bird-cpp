@@ -1,5 +1,5 @@
 #include "Obstacle.hpp"
-
+#include <allegro5/allegro_primitives.h> 
 #include <iostream>
 
 Obstacle::Obstacle(
@@ -16,7 +16,7 @@ Obstacle::Obstacle(
     _isTopPipe(isTopPipe) {}
 
 Obstacle::~Obstacle(){ 
-    std::cout << "Destruindo obstáculo" << std::endl; 
+    // std::cout << "Destruindo obstáculo" << std::endl; 
 };
 
 void Obstacle::draw(){
@@ -33,9 +33,13 @@ void Obstacle::draw(){
             _width, _height,           // Destination width, height (the desired size)
             0                        // Flags (e.g., ALLEGRO_FLIP_HORIZONTAL)
         );
-    }else{
-        //ATENCAO
+    };
+    
+    #ifdef DEBUG_BUILD 
+    if (_debugDraw) {
+        al_draw_rectangle(_x, _y, _x + _width, _y + _height, al_map_rgb(255, 0, 255), 2); // Magenta outline
     }
+    #endif
 }
 
 void Obstacle::update(double deltaTime){ // Move o cano para esquerda;

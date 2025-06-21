@@ -9,18 +9,21 @@ Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
       display(nullptr),
       eventQueue(nullptr),
       timer(nullptr),
-    //   gameFont(nullptr),
-      _birdSprite1(nullptr), 
-      _birdSprite2(nullptr),
-    //   _birdSprite3(nullptr),
+      _ObstacleManager(nullptr),
+      _Bird(nullptr),
       _ground1(nullptr),
+      _Background(nullptr),
+      _CollisionManager(1, SCREEN_WIDTH, SCREEN_HEIGHT),
+    //   gameFont(nullptr),
       _topPipeSprite(nullptr), 
       _bottomPipeSprite(nullptr),
+    //   _birdSprite3(nullptr),
       _groundSprite(nullptr), 
       _backgroundSprite(nullptr),
+      _birdSprite1(nullptr), 
+      _birdSprite2(nullptr),
       _difficulty_scalar(1.0f),
-      _lastFrameTime(0.0),
-      _Bird(nullptr)
+      _lastFrameTime(0.0)
       {
         _groundYPosition = SCREEN_HEIGHT * 0.8f; // O chão deve ocupar 20% da tela
     }
@@ -124,7 +127,6 @@ bool Game::initialize() {
     float original_bitmap_width = (float)al_get_bitmap_width(_groundSprite);
     float original_bitmap_height = (float)al_get_bitmap_height(_groundSprite);
 
-    std::cout << original_bitmap_width << this->_screenWidth << std::endl;
 
     // Initialize Ground (UNCOMMENT THIS)
     this->_ground1 = std::make_unique<Ground>(
@@ -146,7 +148,8 @@ bool Game::initialize() {
         _BASE_GRAVITY,                  // base gravity
         _BASE_JUMP_FORCE,               // base jump force
         _birdAnimationFrames,           // vector of animation bitmaps
-        this->_screenWidth, this->_screenHeight // Pass screen dimensions to Element
+        this->_screenWidth, this->_screenHeight, // Pass screen dimensions to Element
+        _INITIAL_BIRD_FLIGHT_DURATION
     );
 
     // // ScoreManager
@@ -155,6 +158,10 @@ bool Game::initialize() {
     this->applyDifficultyScalar();
     al_start_timer(timer);
     _lastFrameTime = al_get_time(); // Initialize last frame time
+
+    #ifdef DEBUG_BUILD // <--- NEW: Only set debugDraw if DEBUG_BUILD is defined
+    _Bird->setDebugDraw(true);
+    #endif
 
     return true;
 }
@@ -181,7 +188,7 @@ void Game::run() {
 }
 
 void Game::handleInput(ALLEGRO_EVENT& event) {
-    if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+    if (event.keyboard.keycode == ALLEGRO_KEY_SPACE || event.keyboard.keycode == ALLEGRO_KEY_J) {
         if (currentState == MENU) { // If you re-introduce a menu
             currentState = PLAYING;
             resetGame();
@@ -216,10 +223,11 @@ void Game::updatePlaying(double deltaTime) {
     this->_Bird->update(deltaTime);
 
     // Check for collisions
-    // if (collisionManager.checkCollision(*bird, *pipeManager, groundYPosition)) {
-    //     currentState = GAME_OVER;
-    //     std::cout << "Game Over! Score: " << scoreManager->getScore() << std::endl;
-    // }
+    if (_CollisionManager.checkCollision(*_Bird, *_ObstacleManager, _groundYPosition)) {
+        currentState = GAME_OVER; // Set game state to GAME_OVER on collision
+        std::cout << "Game Over! Collision detected." << std::endl;
+        // You might add sound effects, score display, etc. here
+    }
 
     // Check for scoring (bird passed a pipe)
     // This is a simple scoring mechanism. More robust solutions might track pipes
@@ -254,6 +262,25 @@ void Game::updatePlaying(double deltaTime) {
     // }
     // Clean up scoredPipes when pipes are removed from pipeManager (TODO: more robust sync)
     // Or, better, integrate scoring directly into PipeManager
+
+    // static int pipes_passed_since_last_difficulty_increase = 0;
+    // if (_ObstacleManager->_deletedPipes > 0 && _ObstacleManager->_deletedPipes % 2 == 0) {
+    //     int current_pairs_cleared = _ObstacleManager->_deletedPipes / 2;
+    //     if (current_pairs_cleared > _pipes_passed_for_difficulty) {
+    //         _pipes_passed_for_difficulty = current_pairs_cleared;
+    //         if (_pipes_passed_for_difficulty % 3 == 0) {
+    //             increaseDifficulty(0.1f);
+    //         }
+    //     }
+    // }
+
+    #ifdef DEBUG_BUILD // <--- NEW: Only set debugDraw if DEBUG_BUILD is defined
+    for (const auto& pipe : _ObstacleManager->getPipes()) {
+        if (pipe) {
+            pipe->setDebugDraw(true);
+        }
+    }
+    #endif // DEBUG_BUILD
 }
 
 void Game::draw() {
@@ -323,7 +350,7 @@ bool Game::loadAssets() {
     //         return false;
     //     }
     // }
-    
+
 // ALLEGRO_BITMAP* frame1_sub = al_create_sub_bitmap(master_sheet, x_offset_frame1, y_offset_frame1, 32, 24);
 // ALLEGRO_BITMAP* frame2_sub = al_create_sub_bitmap(master_sheet, x_offset_frame2, y_offset_frame2, 32, 24);
 

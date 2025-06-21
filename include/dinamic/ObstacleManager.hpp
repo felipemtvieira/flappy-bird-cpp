@@ -9,7 +9,7 @@
 
 class ObstacleManager : public AbstractManager {
     private:
-        std::vector<std::unique_ptr<Obstacle>> pipes;
+        std::vector<std::unique_ptr<Obstacle>> _pipes;
         float _spawnTimer;
         float _spawnInterval;
         float _pipeScrollSpeed;
@@ -41,7 +41,9 @@ class ObstacleManager : public AbstractManager {
         void draw();
         void setScrollSpeed(float newSpeed);
         void setSpawnInterval(float newInterval);
+        const std::vector<std::unique_ptr<Obstacle>>&getPipes() const;
 
+        
     private:
         void spawnPipes();
 };

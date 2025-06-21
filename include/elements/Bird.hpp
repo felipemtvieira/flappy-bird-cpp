@@ -6,13 +6,15 @@
 
 class Bird : public Element {
 private:
-    // float _velocityY; // <-- REMOVE THIS MEMBER
     float _gravity;
     float _jumpForce;
     std::vector<ALLEGRO_BITMAP*> _animationFrames;
     int _currentFrame;
     double _animationTimer;
     double _frameDuration;
+
+    float _gracePeriodTimer;
+    float _initialFlightDuration;
 
 public:
     Bird(
@@ -24,7 +26,8 @@ public:
         float baseJumpForce,
         const std::vector<ALLEGRO_BITMAP*>& animationFrames,
         float screenWidth, 
-        float screenHeight
+        float screenHeight, 
+        float initialFlightDuration
     );
     ~Bird();
 
@@ -32,9 +35,8 @@ public:
     void update(double deltaTime) override;
     void jump();
 
-    // The getVelocityY() and setVelocityY() now operate on the inherited _speed
-    float getVelocityY() const { return _speed; } // <-- RETURN _speed
-    void setVelocityY(float vel) { _speed = vel; } // <-- SET _speed
+    float getVelocityY() const { return _speed; }
+    void setVelocityY(float vel) { _speed = vel; }
 
     void setGravity(float newGravity);
     void setJumpForce(float newJumpForce);

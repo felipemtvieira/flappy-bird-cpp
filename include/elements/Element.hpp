@@ -13,6 +13,12 @@ protected:
     float _screenHeight;
     float _speed;
     ALLEGRO_BITMAP* _bitmap;
+    bool _debugDraw;
+    
+    float _colliderOffsetX; 
+    float _colliderOffsetY; 
+    float _colliderWidth;   
+    float _colliderHeight; 
 
 public:
     Element(
@@ -36,6 +42,15 @@ public:
     float getY() const;
     float getWidth() const;
     float getHeight() const;
+
+    float getColliderX() const { return _x + _colliderOffsetX; }
+    float getColliderY() const { return _y + _colliderOffsetY; }
+    float getColliderWidth() const { return _colliderWidth; }
+    float getColliderHeight() const { return _colliderHeight; }
+
+    void setDebugDraw(bool debugDraw) { _debugDraw = debugDraw; }
+
+    void setColliderDimensions(float offsetX, float offsetY, float width, float height);
 };
 
 #endif

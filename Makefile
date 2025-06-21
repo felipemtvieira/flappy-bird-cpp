@@ -1,9 +1,5 @@
 # ==============================================================================
 # Makefile for Flappy Bird Clone (C++ with Allegro 5)
-# Designed for clarity and robustness against common makefile issues.
-#
-# IMPORTANT: All command lines (lines starting with @, $ or a variable)
-#            MUST be indented with a single TAB character, NOT spaces.
 # ==============================================================================
 
 # --- Configuration ---
@@ -16,6 +12,11 @@ CXX = g++
 # -g: Include debugging information for debuggers
 # -std=c++17: Use C++17 standard (adjust as needed: c++11, c++14, etc.)
 CXXFLAGS = -Wall -g -std=c++17
+
+# 
+ifdef DEBUG_MODE
+    CXXFLAGS += -DDEBUG_BUILD
+endif
 
 # Include Directories (relative to the Makefile's location)
 # Order matters: more specific includes often come before general ones

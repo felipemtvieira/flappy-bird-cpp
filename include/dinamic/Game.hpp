@@ -12,7 +12,7 @@
 #include "ObstacleManager.hpp"
 #include "Ground.hpp"
 #include "Background.hpp"
-// #include "CollisionManager.hpp"
+#include "CollisionManager.hpp"
 // #include "ScoreManager.hpp"
 
 #include <vector>
@@ -35,7 +35,7 @@ private:
     std::unique_ptr<Bird> _Bird;
     std::unique_ptr<Ground> _ground1; // Two ground segments for continuous scroll
     std::unique_ptr<Background> _Background;
-    // CollisionManager collisionManager; // No unique_ptr, as it's simple and doesn't own resources
+    CollisionManager _CollisionManager; // No unique_ptr, as it's simple and doesn't own resources
     // std::unique_ptr<ScoreManager> scoreManager; // Managed by Game
 
     // ALLEGRO_FONT* gameFont;
@@ -56,17 +56,18 @@ private:
     // Base values for game properties
     static constexpr float _BASE_PIPE_SCROLL_SPEED = 150.0f;
     // const float _BASE_GROUND_SCROLL_SPEED = 150.0f;
-    static constexpr float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
-    static constexpr float _PIPE_WIDTH = 350.0f; // Keep this consistent
+    static constexpr float _BASE_PIPE_SPAWN_INTERVAL = 2.0f; // Seconds
+    static constexpr float _PIPE_WIDTH = 120.0f; // Keep this consistent
     static constexpr float _PIPE_HEIGHT = 575.0f; // Keep this consistent
-    static constexpr float _MAX_PIPE_GAP = 50.0f;
-    static constexpr float _MIN_PIPE_GAP = 50.0f;
+    static constexpr float _MAX_PIPE_GAP = 150.0f;
+    static constexpr float _MIN_PIPE_GAP = 150.0f;
 
     // NEW BIRD-RELATED CONSTANTS
     static constexpr float _BASE_GRAVITY = 900.0f;
     static constexpr float _BASE_JUMP_FORCE = 300.0f;
-    static constexpr float _BIRD_WIDTH = 70.0f; // Logical width
-    static constexpr float _BIRD_HEIGHT = 60.0f; // Logical height
+    static constexpr float _BIRD_WIDTH = 60.0f; // Logical width
+    static constexpr float _BIRD_HEIGHT = 50.0f; // Logical height
+    static constexpr float _INITIAL_BIRD_FLIGHT_DURATION = 10.0f;
 
 
 public:

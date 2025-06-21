@@ -37,10 +37,10 @@ void ObstacleManager::update(double deltaTime) {
         this->_spawnTimer = 0.0f;
     }
 
-    for (auto it = pipes.begin(); it != pipes.end(); ) {
+    for (auto it = this->_pipes.begin(); it != this->_pipes.end(); ) {
         (*it)->update(deltaTime);
         if ((*it)->isOffScreen()) {
-            it = pipes.erase(it);
+            it = this->_pipes.erase(it);
             this->_deletedPipes += 1;
         } else {
             ++it;
@@ -54,70 +54,68 @@ void ObstacleManager::update(double deltaTime) {
 }
 
 void ObstacleManager::draw() {
-    for (const auto& pipe : pipes) {
+    for (const auto& pipe : this->_pipes) {
         pipe->draw();
     }
 }
 
 void ObstacleManager::spawnPipes() {
-    float n = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
-    float topPipeY = -340 * n;
-    float gap = 0;
-    float pipeX = this->_screenWidth;
+    float groundYPosition = this->_screenHeight * 0.8;
+    float maxGapTopYAllowed = groundYPosition - _maxPipeGap - 20;
+    float minGapTopYAllowed = 50.0f;
 
-    if(this->_maxPipeGap == this->_minPipeGap){
-        gap = this->_maxPipeGap;
+    if (maxGapTopYAllowed < minGapTopYAllowed) {
+        maxGapTopYAllowed = minGapTopYAllowed;
     }
 
-    // std::cout << topPipeY << " " << " " << gap << " " << this->_pipeHeight << std::endl;
-    if(topPipeY > -165.0){
-        topPipeY = -165.0;
-    }
+    float gapTopY = minGapTopYAllowed + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (maxGapTopYAllowed - minGapTopYAllowed));
+    float currentGapHeight = _minPipeGap + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (_maxPipeGap - _minPipeGap));
 
-    float bottomPipeY = topPipeY + this->_pipeHeight + gap - 225.0;
+    float topPipeY = 0.0f;
+    float topPipeHeight = gapTopY;
 
+    float bottomPipeY = gapTopY + currentGapHeight;
+    float bottomPipeHeight = groundYPosition - bottomPipeY; // Correctly calculated height
 
+    topPipeHeight = std::max(0.0f, topPipeHeight);
+    bottomPipeHeight = std::max(0.0f, bottomPipeHeight);
 
-    // float original_topPipeSprite_bitmap_width = (float)al_get_bitmap_width(this->_topPipeSprite);
-    // float original_topPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
-    // Top pipe: extends from the top of the screen down to `gapTopY`
-    // Its actual Y position will be `gapTopY - screenHeight` since the image starts at Y=0
-    pipes.push_back(
+    this->_pipes.push_back(
         std::make_unique<Obstacle>(
-            pipeX,                      // _x
-            topPipeY,                   // _y
-            // original_topPipeSprite_bitmap_width,
-            this->_pipeWidth,
-            this->_pipeHeight, // _height
-            this->_screenWidth,
-            this->_screenHeight,
-            this->_pipeScrollSpeed, 
-            this->_topPipeSprite, 
-            true                        // _isTopPipe
+            _screenWidth,        // _x
+            topPipeY,            // _y
+            this->_pipeWidth,    // _width
+            topPipeHeight,       // <-- CORRECT: Pass the CALCULATED height
+            this->_screenWidth,     // screenWidth for Element
+            this->_screenHeight,    // screenHeight for Element
+            this->_pipeScrollSpeed, // speed
+            this->_topPipeSprite,   // bitmap
+            true // _isTopPipe
         )
     );
 
-    // float original_bottomPipeSprite_bitmap_width = (float)al_get_bitmap_width(this->_topPipeSprite);
-    // float original_bottomPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
-    // Bottom pipe: extends from `gapTopY + currentGapHeight` to the bottom of the screen
-    pipes.push_back(
+    this->_pipes.push_back(
         std::make_unique<Obstacle>(
-            pipeX,                      // _x
-            bottomPipeY,                // _y
-            this->_pipeWidth, 
-            this->_pipeHeight,
-            this->_screenWidth,
-            this->_screenHeight,        // _height
-            this->_pipeScrollSpeed, 
-            this->_bottomPipeSprite, 
-            false                       // _isTopPipe
+            _screenWidth,         // _x
+            bottomPipeY,          // _y
+            this->_pipeWidth,
+            bottomPipeHeight,     // <-- CORRECT: Pass the CALCULATED height
+            this->_screenWidth,      // screenWidth for Element
+            this->_screenHeight,     // screenHeight for Element
+            this->_pipeScrollSpeed, // speed
+            this->_bottomPipeSprite, // bitmap
+            false // _isTopPipe
         )
     );
 }
 
+const std::vector<std::unique_ptr<Obstacle>>& ObstacleManager::getPipes() const {
+    return this->_pipes; // <-- Return the actual _pipes member variable
+}
+
 void ObstacleManager::setScrollSpeed(float newSpeed) {
     _pipeScrollSpeed = newSpeed;
-    for (const auto& pipe : pipes) {
+    for (const auto& pipe : this->_pipes) {
         pipe->setScrollSpeed(newSpeed);
     }
 }
