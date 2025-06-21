@@ -16,6 +16,7 @@ class ObstacleManager : public AbstractManager {
         float _minPipeGap;
         float _maxPipeGap;
         float _pipeWidth;
+        float _pipeHeight;
         int _deletedPipes;
         ALLEGRO_BITMAP* _topPipeSprite;
         ALLEGRO_BITMAP* _bottomPipeSprite;
@@ -27,6 +28,7 @@ class ObstacleManager : public AbstractManager {
             float minPipeGap, 
             float maxPipeGap, 
             float pipeWidth, 
+            float pipeHeight,
             float screenWidth, 
             float screenHeight, 
             ALLEGRO_BITMAP* topSprite, 

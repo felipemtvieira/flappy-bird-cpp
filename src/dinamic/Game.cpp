@@ -11,8 +11,7 @@ Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
       timer(nullptr),
     //   gameFont(nullptr),
     //   birdSprite1(nullptr), birdSprite2(nullptr),
-      _ground1(nullptr), // Initialize ground unique_ptr
-      _ground2(nullptr),
+      _ground1(nullptr),
       _topPipeSprite(nullptr), 
       _bottomPipeSprite(nullptr),
       _groundSprite(nullptr), 
@@ -20,7 +19,7 @@ Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
       _difficulty_scalar(1.0f),
       _lastFrameTime(0.0)
       {
-        _groundYPosition = SCREEN_HEIGHT * 0.8f;
+        _groundYPosition = SCREEN_HEIGHT * 0.8f; // O chão deve ocupar 20% da tela
     }
 
 Game::~Game() {
@@ -97,6 +96,7 @@ bool Game::initialize() {
             this->_MIN_PIPE_GAP, // minGapY 
             this->_MAX_PIPE_GAP, // maxGapY
             this->_PIPE_WIDTH, // pipeWidth
+            this->_PIPE_HEIGHT, // pipeWidth
             this->_screenWidth,
             this->_screenHeight,
             this->_topPipeSprite,
@@ -133,17 +133,6 @@ bool Game::initialize() {
         _screenHeight,
         _BASE_PIPE_SCROLL_SPEED, // Base ground scroll speed
         _groundSprite            // The loaded ground sprite
-    );
-
-    this->_ground2 = std::make_unique<Ground>(
-        _screenWidth,            // x (starts immediately to the right of the first ground)
-        _groundYPosition,
-        original_bitmap_width,
-        original_bitmap_height,
-        _screenWidth,
-        _screenHeight,
-        _BASE_PIPE_SCROLL_SPEED,
-        _groundSprite
     );
 
     // // ScoreManager
@@ -195,18 +184,8 @@ void Game::update(double deltaTime) {
 void Game::updatePlaying(double deltaTime) {
     // _Background->update(deltaTime);
     this->_ground1->update(deltaTime);
-    this->_ground2->update(deltaTime);
     this->_ObstacleManager->update(deltaTime);
     // bird->update(deltaTime);
-
-    // Ground continuous scrolling logic (UNCOMMENT AND FIX)
-    // When a ground segment moves off-screen, reposition it to the right of the other
-    // if (_ground1->getX() + _ground1->getWidth() < 0) {
-    //     _ground1->setPosition(_ground2->getX() + _ground2->getWidth(), _groundYPosition);
-    // }
-    // if (_ground2->getX() + _ground2->getWidth() < 0) {
-    //     _ground2->setPosition(_ground1->getX() + _ground1->getWidth(), _groundYPosition);
-    // }
 
     // Check for collisions
     // if (collisionManager.checkCollision(*bird, *pipeManager, groundYPosition)) {
@@ -273,7 +252,6 @@ void Game::drawPlaying() {
     this->_Background->draw();
     this->_ObstacleManager->draw();
     this->_ground1->draw();
-    this->_ground2->draw();
     // bird->draw();
     // scoreManager->draw();
 }
@@ -343,7 +321,7 @@ void Game::destroyAssets() {
     if (this->_topPipeSprite) al_destroy_bitmap(this->_topPipeSprite);
     if (this->_bottomPipeSprite) al_destroy_bitmap(this->_bottomPipeSprite);
     if (this->_groundSprite) al_destroy_bitmap(this->_groundSprite);
-    // if (backgroundSprite) al_destroy_bitmap(backgroundSprite);
+    if (this->_backgroundSprite) al_destroy_bitmap(this->_backgroundSprite);
     // if (gameFont) al_destroy_font(gameFont);
 
     // Clear vector after destroying bitmaps
@@ -363,6 +341,7 @@ void Game::resetGame() {
             this->_MIN_PIPE_GAP, // minGapY 
             this->_MAX_PIPE_GAP, // maxGapY
             this->_PIPE_WIDTH, // pipeWidth
+            this->_PIPE_HEIGHT, // pipeWidth
             this->_screenWidth,
             this->_screenHeight,
             this->_topPipeSprite,
@@ -380,8 +359,7 @@ void Game::resetGame() {
 void Game::applyDifficultyScalar() {
     this->_ObstacleManager->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar);
     this->_ObstacleManager->setSpawnInterval(_BASE_PIPE_SPAWN_INTERVAL / _difficulty_scalar); // Spawn faster
-    this->_ground1->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar); // UNCOMMENT THIS
-    this->_ground2->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar); // UNCOMMENT THIS
+    this->_ground1->setScrollSpeed(_BASE_PIPE_SCROLL_SPEED * _difficulty_scalar);
 
 }
 

@@ -7,6 +7,7 @@ ObstacleManager::ObstacleManager(
     float minPipeGap, 
     float maxPipeGap, 
     float pipeWidth, 
+    float pipeHeight,
     float screenWidth, 
     float screenHeight, 
     ALLEGRO_BITMAP* topPipeSprite, 
@@ -19,7 +20,8 @@ ObstacleManager::ObstacleManager(
     _pipeScrollSpeed(pipeScrollSpeed), 
     _minPipeGap(minPipeGap), 
     _maxPipeGap(maxPipeGap), 
-    _pipeWidth(pipeWidth), 
+    _pipeWidth(pipeWidth),
+    _pipeHeight(pipeHeight),
     _deletedPipes(0),
     _topPipeSprite(topPipeSprite), 
     _bottomPipeSprite(bottomPipeSprite) 
@@ -60,20 +62,21 @@ void ObstacleManager::draw() {
 void ObstacleManager::spawnPipes() {
     float n = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
     float topPipeY = -340 * n;
-    float gap;
+    float gap = 0;
     float pipeX = this->_screenWidth;
 
     if(this->_maxPipeGap == this->_minPipeGap){
         gap = this->_maxPipeGap;
     }
 
-    float bottomPipeY = gap + topPipeY + this->_pipeWidth;
+    // std::cout << topPipeY << " " << " " << gap << " " << this->_pipeHeight << std::endl;
+    if(topPipeY > -165.0){
+        topPipeY = -165.0;
+    }
 
-    // float maxGapTop = _screenHeight - (_screenHeight * 0.2f) - _maxPipeGap; // Assuming ground takes ~20% of screen
-    // float minGapTop = _screenHeight * 0.1f; // Minimum Y for the top of the gap (e.g., 10% from top)
+    float bottomPipeY = topPipeY + this->_pipeHeight + gap - 225.0;
 
-    // float gapTopY = minGapTop + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (maxGapTop - minGapTop));
-    // float currentGapHeight = _minPipeGap + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (_maxPipeGap - _minPipeGap));
+
 
     // float original_topPipeSprite_bitmap_width = (float)al_get_bitmap_width(this->_topPipeSprite);
     float original_topPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
@@ -85,7 +88,7 @@ void ObstacleManager::spawnPipes() {
             topPipeY,                   // _y
             // original_topPipeSprite_bitmap_width,
             this->_pipeWidth,
-            600.0, // _height
+            this->_pipeHeight, // _height
             this->_screenWidth,
             this->_screenHeight,
             this->_pipeScrollSpeed, 
@@ -95,21 +98,21 @@ void ObstacleManager::spawnPipes() {
     );
 
     // float original_bottomPipeSprite_bitmap_width = (float)al_get_bitmap_width(this->_topPipeSprite);
-    float original_bottomPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
+    // float original_bottomPipeSprite_bitmap_height = (float)al_get_bitmap_height(this->_topPipeSprite);
     // Bottom pipe: extends from `gapTopY + currentGapHeight` to the bottom of the screen
-    // pipes.push_back(
-    //     std::make_unique<Obstacle>(
-    //         pipeX,                      // _x
-    //         bottomPipeY,                // _y
-    //         this->_pipeWidth, 
-    //         original_bottomPipeSprite_bitmap_height,
-    //         this->_screenWidth,
-    //         this->_screenHeight,        // _height
-    //         this->_pipeScrollSpeed, 
-    //         this->_bottomPipeSprite, 
-    //         false                       // _isTopPipe
-    //     )
-    // );
+    pipes.push_back(
+        std::make_unique<Obstacle>(
+            pipeX,                      // _x
+            bottomPipeY,                // _y
+            this->_pipeWidth, 
+            this->_pipeHeight,
+            this->_screenWidth,
+            this->_screenHeight,        // _height
+            this->_pipeScrollSpeed, 
+            this->_bottomPipeSprite, 
+            false                       // _isTopPipe
+        )
+    );
 }
 
 void ObstacleManager::setScrollSpeed(float newSpeed) {

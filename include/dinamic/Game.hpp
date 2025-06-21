@@ -32,7 +32,7 @@ private:
 
     std::unique_ptr<ObstacleManager> _ObstacleManager;
     // std::unique_ptr<Bird> bird;
-    std::unique_ptr<Ground> _ground1, _ground2; // Two ground segments for continuous scroll
+    std::unique_ptr<Ground> _ground1; // Two ground segments for continuous scroll
     std::unique_ptr<Background> _Background;
     // CollisionManager collisionManager; // No unique_ptr, as it's simple and doesn't own resources
     // std::unique_ptr<ScoreManager> scoreManager; // Managed by Game
@@ -58,6 +58,7 @@ private:
     // const float _BASE_GROUND_SCROLL_SPEED = 150.0f;
     const float _BASE_PIPE_SPAWN_INTERVAL = 1.5f; // Seconds
     const float _PIPE_WIDTH = 350.0f; // Keep this consistent
+    const float _PIPE_HEIGHT = 575.0f; // Keep this consistent
     const float _MAX_PIPE_GAP = 50.0f;
     const float _MIN_PIPE_GAP = 50.0f;
 
