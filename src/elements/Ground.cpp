@@ -12,51 +12,50 @@ Ground::Ground(
         float baseScrollSpeed, 
         ALLEGRO_BITMAP* bitmap
     )
-    : Element(x, y, width, height, screenWidth, screenHeight, baseScrollSpeed, bitmap),
-      _originalX(x) {
+    : Element(x, y, width, height, screenWidth, screenHeight, baseScrollSpeed, bitmap) {
 }
 
 Ground::~Ground() {}
 
 void Ground::draw() {
-    if (_bitmap) {
+    if (this->_bitmap) {
         al_draw_scaled_bitmap(
-            _bitmap,                    // The bitmap to draw
+            this->_bitmap,                    // The bitmap to draw
             0, 0,                       // Source X, Y (entire original bitmap)
-            _width,
-            _height,
-            _x, _y,                     // Destination X, Y (from Element's position)
-            _screenWidth,               // Destination width
-            _screenHeight - _y,         // Altura final deve ser 20% da tela para não distorcer a imagem
+            this->_width,
+            this->_height,
+            this->_x, this->_y,                     // Destination X, Y (from Element's position)
+            this->_screenWidth,               // Destination width
+            this->_screenHeight - this->_y,         // Altura final deve ser 20% da tela para não distorcer a imagem
             0
         );
 
         al_draw_scaled_bitmap(
-            _bitmap,
+            this->_bitmap,
             0, 0,
-            _width,
-            _height,
-            _x + _screenWidth - 2.0, _y,     // Draw second instance right after the first
-            _screenWidth,               // Destination width
-            _screenHeight - _y,
+            this->_width,
+            this->_height,
+            this->_x + this->_screenWidth - 2.0, this->_y,     // Draw second instance right after the first
+            this->_screenWidth,               // Destination width
+            this->_screenHeight - this->_y,
             0
         );
 
     } else {
         // Fallback: draw a colored rectangle if no bitmap is loaded
-        al_draw_filled_rectangle(_x, _y, _x + _width, _y + _height, al_map_rgb(100, 50, 0)); // Brown ground
+        al_draw_filled_rectangle(this->_x, this->_y, this->_x + this->_width, this->_y + this->_height, al_map_rgb(100, 50, 0)); // Brown ground
     }
 }
 
 void Ground::update(double deltaTime) {
-    _x -= _speed * deltaTime; // Use _x and _speed inherited from Element
+    this->_x -= this->_speed * deltaTime; // Use _x and _speed inherited from Element
 
-    if (_x + _screenWidth <= 0) {
-        _x = 0;
+    if (this->_x + this->_screenWidth <= 0) {
+        this->_x = 0;
     }
 }
 
 // Set the inherited _speed member
 void Ground::setScrollSpeed(float newSpeed) {
-    _speed = newSpeed; // Update the inherited speed
+    this->_speed = newSpeed; // Update the inherited speed
 }

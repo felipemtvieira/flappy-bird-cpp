@@ -14,7 +14,7 @@ public:
     void draw() override;
     void update(double deltaTime) override;
 
-    // Setter para efeito de paralaxe (implementação não existente no jogo original)
+    // Setter para efeito de paralaxe (Ainda não implementado)
     void setScrollSpeed(float newSpeed);
 };
 

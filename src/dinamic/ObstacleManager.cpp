@@ -46,11 +46,6 @@ void ObstacleManager::update(double deltaTime) {
             ++it;
         }
     }
-
-    // if(this->_deletedPipes % 2 == 0){
-    //     this->_pipeScrollSpeed *= 1.2;
-    //     // this->_spawnInterval *= 0.8;
-    // }
 }
 
 void ObstacleManager::draw() {

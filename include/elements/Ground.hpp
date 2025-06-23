@@ -5,7 +5,6 @@
 
 class Ground : public Element {
 private:
-    float _originalX; // To reset position for continuous scrolling
 
 public:
     Ground(
@@ -19,12 +18,11 @@ public:
         ALLEGRO_BITMAP* bitmap = nullptr    
     );
 
-    ~Ground(); // Destructor (optional, as Element's destructor is virtual)
+    ~Ground();
 
     void draw() override;
     void update(double deltaTime) override;
 
-    // We can still expose a setter, which will internally update Element's _speed
     void setScrollSpeed(float newSpeed);
 };
 

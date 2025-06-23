@@ -27,10 +27,10 @@ public:
     void draw() override;
     void update(double deltaTime) override; // Move o cano para esquerda;
     bool isOffScreen() const; // Verifica se o cano saiu da tela à esquerda
-    // Getters
+    
     bool getIsTopPipe() const;
     bool getHasBeenScored() const;
-    //Setters
+    
     void setScrollSpeed(float newSpeed);    
     void setScored(bool scored);
 

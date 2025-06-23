@@ -20,17 +20,17 @@ Obstacle::~Obstacle(){
 };
 
 void Obstacle::draw(){
-    if(_bitmap){
-        float original_sprite_width = (float)al_get_bitmap_width(_bitmap);
-        float original_sprite_height = (float)al_get_bitmap_height(_bitmap);
+    if(this->_bitmap){
+        float original_sprite_width = (float)al_get_bitmap_width(this->_bitmap);
+        float original_sprite_height = (float)al_get_bitmap_height(this->_bitmap);
 
         al_draw_scaled_bitmap(
-            _bitmap,                  // The bitmap to draw
+            this->_bitmap,                  // The bitmap to draw
             0, 0,                    // Source X, Y (start from top-left of the original bitmap)
             original_sprite_width,   // Source width (entire original bitmap width)
             original_sprite_height,  // Source height (entire original bitmap height)
-            _x, _y,                    // Destination X, Y (where to draw on screen)
-            _width, _height,           // Destination width, height (the desired size)
+            this->_x, this->_y,                    // Destination X, Y (where to draw on screen)
+            this->_width, this->_height,           // Destination width, height (the desired size)
             0                        // Flags (e.g., ALLEGRO_FLIP_HORIZONTAL)
         );
     };
@@ -43,19 +43,19 @@ void Obstacle::draw(){
 }
 
 void Obstacle::update(double deltaTime){ // Move o cano para esquerda;
-    _x -= _speed * deltaTime; 
+    this->_x -= this->_speed * deltaTime; 
 }
 
 bool Obstacle::isOffScreen() const {
-    return _x + _width < 0; // Verifica se o cano saiu da tela à esquerda
+    return this->_x + this->_width < 0; // Verifica se o cano saiu da tela à esquerda
 }
 
-bool Obstacle::getIsTopPipe() const { return _isTopPipe; }
+bool Obstacle::getIsTopPipe() const { return this->_isTopPipe; }
 
-bool Obstacle::getHasBeenScored() const { return _hasBeenScored; } // NEW: Getter for _hasBeenScored
+bool Obstacle::getHasBeenScored() const { return this->_hasBeenScored; } // NEW: Getter for _hasBeenScored
 
-void Obstacle::setScored(bool scored) { _hasBeenScored = scored; } // NEW: Setter for _hasBeenScored
+void Obstacle::setScored(bool scored) { this->_hasBeenScored = scored; } // NEW: Setter for _hasBeenScored
 
 void Obstacle::setScrollSpeed(float newSpeed) {
-    _speed = newSpeed;
+    this->_speed = newSpeed;
 }

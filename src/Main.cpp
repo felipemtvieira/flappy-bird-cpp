@@ -10,7 +10,7 @@
 const float SCREEN_WIDTH = 800;
 const float SCREEN_HEIGHT = 600;
 
-int main() { // Reverted: No argc, argv here
+int main() {
     UserManager userManager("users.txt");
 
     std::cout << "Welcome to Flappy Bird CLI!" << std::endl;
@@ -45,27 +45,19 @@ int main() { // Reverted: No argc, argv here
                 if (currentUser) {
                     std::cout << "Launching game for player: " << currentUser->name << " (" << currentUser->nickname << ")" << std::endl;
 
-                    // *** LAUNCH THE GRAPHICAL GAME ***
-                    // No debugMode parameter needed for Game constructor here
                     Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
-                    try { // NEW: Try block for game initialization
-                        if (!game.initialize()) {
-                            // This path should ideally not be taken if initialize() throws on error
-                            std::cerr << "Game initialization failed for " << currentUser->nickname << " (returned false)!" << std::endl;
-                        } else {
-                            game.run(); // This blocks until game window closes
+                    try {
+                        game.initialize();
+                        game.run(); 
 
-                            int finalScore = game.getCurrentScore();
-                            std::cout << "Game session ended. Final score: " << finalScore << std::endl;
-                            userManager.updateUserStats(nickname, finalScore);
-                        }
-                    } catch (const GameError& e) { // Catch our custom game errors
+                        int finalScore = game.getCurrentScore();
+                        std::cout << "Game session ended. Final score: " << finalScore << std::endl;
+                        userManager.updateUserStats(nickname, finalScore);
+                    } catch (const GameError& e) {
                         std::cerr << "CRITICAL GAME ERROR: " << e.what() << std::endl;
-                        // Depending on the severity, you might want to exit the entire program here
-                        // For now, it returns to the CLI, allowing other commands.
-                    } catch (const std::exception& e) { // Catch any other standard exceptions
+                    } catch (const std::exception& e) { 
                         std::cerr << "UNEXPECTED ERROR: " << e.what() << std::endl;
-                    } catch (...) { // Catch any unknown exceptions
+                    } catch (...) { 
                         std::cerr << "UNKNOWN ERROR DURING GAME EXECUTION!" << std::endl;
                     }
 

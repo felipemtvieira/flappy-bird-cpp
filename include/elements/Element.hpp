@@ -13,8 +13,9 @@ protected:
     float _screenHeight;
     float _speed;
     ALLEGRO_BITMAP* _bitmap;
-    bool _debugDraw;
+    bool _debugDraw; // Desenha os retangulos usados para verificação de colisão na tela para fins de debug
     
+    // Valores dos retangulos de colisão
     float _colliderOffsetX; 
     float _colliderOffsetY; 
     float _colliderWidth;   
@@ -32,7 +33,7 @@ public:
         ALLEGRO_BITMAP* bitmap
     );
 
-    virtual ~Element() {} //ATENCAO
+    virtual ~Element() {}
 
     virtual void draw() = 0;
 
@@ -43,10 +44,10 @@ public:
     float getWidth() const;
     float getHeight() const;
 
-    float getColliderX() const { return _x + _colliderOffsetX; }
-    float getColliderY() const { return _y + _colliderOffsetY; }
-    float getColliderWidth() const { return _colliderWidth; }
-    float getColliderHeight() const { return _colliderHeight; }
+    float getColliderX() const;
+    float getColliderY() const;
+    float getColliderWidth() const;
+    float getColliderHeight() const;
 
     void setDebugDraw(bool debugDraw) { _debugDraw = debugDraw; }
 
