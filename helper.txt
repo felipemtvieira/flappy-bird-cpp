@@ -1,1 +1,0 @@
-    std::cout << "ObstacleManager.cpp AbstractManager::spawnPipes(): " << this->_screenWidth << std::endl;
