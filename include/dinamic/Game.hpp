@@ -38,7 +38,6 @@ private:
     CollisionManager _CollisionManager; // No unique_ptr, as it's simple and doesn't own resources
     // std::unique_ptr<ScoreManager> scoreManager; // Managed by Game
 
-    // ALLEGRO_FONT* gameFont;
     ALLEGRO_BITMAP* _topPipeSprite;
     ALLEGRO_BITMAP* _bottomPipeSprite;
     ALLEGRO_BITMAP* _groundSprite;
@@ -46,13 +45,15 @@ private:
     ALLEGRO_BITMAP* _birdSprite1;
     ALLEGRO_BITMAP* _birdSprite2; 
     std::vector<ALLEGRO_BITMAP*> _birdAnimationFrames;
+    ALLEGRO_FONT* _gameFont;
 
     float _groundYPosition; // Y coordinate where the ground starts
     float _difficulty_scalar; // Multiplicador de dificuldade para acelerar os elementos visuais proporcionalmente
     double _lastFrameTime; // For calculating deltaTime
 
     int _last_difficulty_score_threshold; // To prevent rapid difficulty increase on same score
-
+    int _currentScore; 
+    
     // Base values for game properties
     static constexpr float _BASE_PIPE_SCROLL_SPEED = 150.0f;
     // const float _BASE_GROUND_SCROLL_SPEED = 150.0f;
@@ -88,10 +89,14 @@ private: // Helper methods, typically private
     // Helper methods for different game states
     void updatePlaying(double deltaTime);
     void drawPlaying();
-    // void drawMenu();
-    // void drawGameOver();
+    void drawMenu();
+    void drawGameOver();
     void applyDifficultyScalar(); // Applies the current difficulty_scalar to game objects
     void increaseDifficulty(float increment);
+    void createGameElements(); 
+
+public:
+    int getCurrentScore();
 };
 
 #endif // GAME_HPP

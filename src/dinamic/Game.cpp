@@ -1,11 +1,12 @@
-#include "Game.hpp"
+#include "../../include/dinamic/Game.hpp"
+#include "../../include/dinamic/GameError.hpp"
 #include <iostream> // For debugging output
 
 // Constructor
 Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
     : 
       AbstractManager(1, SCREEN_WIDTH, SCREEN_HEIGHT), 
-      currentState(PLAYING),
+      currentState(MENU),
       display(nullptr),
       eventQueue(nullptr),
       timer(nullptr),
@@ -22,8 +23,10 @@ Game::Game(float SCREEN_WIDTH, float SCREEN_HEIGHT)
       _backgroundSprite(nullptr),
       _birdSprite1(nullptr), 
       _birdSprite2(nullptr),
+      _gameFont(nullptr),
       _difficulty_scalar(1.0f),
-      _lastFrameTime(0.0)
+      _lastFrameTime(0.0),
+      _currentScore(0)
       {
         _groundYPosition = SCREEN_HEIGHT * 0.8f; // O chão deve ocupar 20% da tela
     }
@@ -36,50 +39,41 @@ Game::~Game() {
 }
 
 bool Game::initialize() {
-    if (!al_init()) {
-        std::cerr << "Failed to initialize Allegro!" << std::endl;
-        return false;
+if (!al_init()) {
+        throw AllegroInitError("Failed to initialize Allegro core."); // THROW EXCEPTION
     }
     if (!al_init_image_addon()) {
-        std::cerr << "Failed to initialize Allegro image addon!" << std::endl;
-        return false;
+        throw AllegroInitError("Failed to initialize Allegro image addon."); // THROW EXCEPTION
     }
     if (!al_install_keyboard()) {
-        std::cerr << "Failed to install keyboard!" << std::endl;
-        return false;
+        throw AllegroInitError("Failed to install keyboard."); // THROW EXCEPTION
     }
     if (!al_init_font_addon()) {
-        std::cerr << "Failed to initialize font addon!" << std::endl;
-        return false;
+        throw AllegroInitError("Failed to initialize font addon."); // THROW EXCEPTION
     }
     if (!al_init_ttf_addon()) {
-        std::cerr << "Failed to initialize ttf addon!" << std::endl;
-        return false;
+        throw AllegroInitError("Failed to initialize ttf addon."); // THROW EXCEPTION
     }
     if (!al_init_primitives_addon()) {
-        std::cerr << "Failed to initialize primitives addon!" << std::endl;
-        return false;
+        throw AllegroInitError("Failed to initialize primitives addon."); // THROW EXCEPTION
     }
 
     display = al_create_display(this->_screenWidth, _screenHeight);
     if (!display) {
-        std::cerr << "Failed to create display!" << std::endl;
-        return false;
+        throw DisplayCreationError("Failed to create display."); // THROW EXCEPTION
     }
 
     timer = al_create_timer(1.0 / 60.0); // 60 FPS
     if (!timer) {
-        std::cerr << "Failed to create timer!" << std::endl;
-        al_destroy_display(display);
-        return false;
+        al_destroy_display(display); // Cleanup before throwing
+        throw TimerCreationError("Failed to create timer."); // THROW EXCEPTION
     }
 
     eventQueue = al_create_event_queue();
     if (!eventQueue) {
-        std::cerr << "Failed to create event queue!" << std::endl;
-        al_destroy_timer(timer);
-        al_destroy_display(display);
-        return false;
+        al_destroy_timer(timer);    // Cleanup
+        al_destroy_display(display); // Cleanup
+        throw EventQueueCreationError("Failed to create event queue."); // THROW EXCEPTION
     }
 
     al_register_event_source(eventQueue, al_get_display_event_source(display));
@@ -87,14 +81,27 @@ bool Game::initialize() {
     al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
     if (!loadAssets()) {
-        std::cerr << "Failed to load game assets!" << std::endl;
-        return false;
+        throw AssetLoadError("Unknown error during asset loading (loadAssets returned false without throwing).");
     }
 
     // Initialize game objects after assets are loaded
-    // Bird parameters: x, y, width, height, gravity, jumpForce, animationFrames
-    // bird = std::make_unique<Bird>(50, screenHeight / 2 - 20, 40, 30, 900.0f, 400.0f, birdAnimationFrames);
+    this->createGameElements();
     
+    // // ScoreManager
+    // scoreManager = std::make_unique<ScoreManager>(gameFont);
+
+    this->applyDifficultyScalar();
+    al_start_timer(timer);
+    _lastFrameTime = al_get_time(); // Initialize last frame time
+
+    #ifdef DEBUG_BUILD // <--- NEW: Only set debugDraw if DEBUG_BUILD is defined
+    _Bird->setDebugDraw(true);
+    #endif
+
+    return true;
+}
+
+void Game::createGameElements(){
     this->_ObstacleManager = 
         std::make_unique<ObstacleManager>(
             this->_BASE_PIPE_SPAWN_INTERVAL, // spawnInterval
@@ -152,19 +159,8 @@ bool Game::initialize() {
         _INITIAL_BIRD_FLIGHT_DURATION
     );
 
-    // // ScoreManager
-    // scoreManager = std::make_unique<ScoreManager>(gameFont);
-
-    this->applyDifficultyScalar();
-    al_start_timer(timer);
-    _lastFrameTime = al_get_time(); // Initialize last frame time
-
-    #ifdef DEBUG_BUILD // <--- NEW: Only set debugDraw if DEBUG_BUILD is defined
-    _Bird->setDebugDraw(true);
-    #endif
-
-    return true;
 }
+
 
 void Game::run() {
     bool running = true;
@@ -190,13 +186,14 @@ void Game::run() {
 void Game::handleInput(ALLEGRO_EVENT& event) {
     if (event.keyboard.keycode == ALLEGRO_KEY_SPACE || event.keyboard.keycode == ALLEGRO_KEY_J) {
         if (currentState == MENU) { // If you re-introduce a menu
+            std::cout << "[DEBUG] handleInput: Transitioning from MENU to PLAYING." << std::endl; // NEW
             currentState = PLAYING;
             resetGame();
         } else if (currentState == PLAYING) {
             _Bird->jump(); // Make bird jump
         } else if (currentState == GAME_OVER) { // If you re-introduce game over
-            currentState = PLAYING; // Or MENU
-            resetGame();
+            currentState = MENU; // Transition from GAME_OVER back to MENU
+            resetGame(); // Reset game state and objects for next play
         }
     }
 }
@@ -204,14 +201,11 @@ void Game::handleInput(ALLEGRO_EVENT& event) {
 void Game::update(double deltaTime) {
     switch (currentState) {
         case MENU:
-            // Background might still scroll slowly
-            // background->update(deltaTime);
             break;
         case PLAYING:
             updatePlaying(deltaTime);
             break;
         case GAME_OVER:
-            // No updates needed, just drawing game over screen
             break;
     }
 }
@@ -229,50 +223,31 @@ void Game::updatePlaying(double deltaTime) {
         // You might add sound effects, score display, etc. here
     }
 
-    // Check for scoring (bird passed a pipe)
-    // This is a simple scoring mechanism. More robust solutions might track pipes
-    // that have been "passed" by checking if their x-position goes past the bird.
-    // for (const auto& pipe : _ObstacleManager->getPipes()) {
-        // Only increment if it's a bottom pipe (or top, just pick one per pair)
-        // and it hasn't been scored yet (needs a 'scored' flag in Pipe class)
-        // For simplicity, let's assume pipes are unique by their pair's position
-        // and score when bird passes the *right edge* of the gap
-        // if (pipe->getX() + pipe->getWidth() < bird->getX() && pipe->getX() + pipe->getWidth() > bird->getX() - 10 && !pipe->isTopPipe) {
-        //     // Need a way to ensure we only score once per pipe pair.
-        //     // A simple approach is to add a `bool scored` flag to the Pipe class,
-        //     // set it to true after scoring, and only increment if `!scored`.
-        //     // For now, this is a placeholder.
-        //     // scoreManager->incrementScore();
-        // // }
-    // }
+    // NEW: Accurate Scoring Logic
+    // Iterate through active pipes to check if the bird has passed them
+    for (const auto& pipe : _ObstacleManager->getPipes()) {
+        // Only consider the bottom pipe of a pair for scoring, and only if not already scored
+        // Assuming pipes are added in pairs (top then bottom), so every second pipe is a bottom pipe for scoring.
+        // Or, better, check _isTopPipe if you prefer.
+        if (pipe && !pipe->getIsTopPipe() && !pipe->getHasBeenScored()) { // Ensure it's a bottom pipe and not scored
+            // Check if the bird's X position has passed the right edge of the pipe
+            // Bird's X + half its width is a good point to check for passing the pipe gap.
+            if (_Bird->getX() > pipe->getX() + pipe->getWidth()) {
+                _currentScore++; // Increment score
+                pipe->setScored(true); // Mark this pipe as scored
+                std::cout << "Score: " << _currentScore << std::endl;
 
-    // A better scoring mechanism: check if the bird has passed the mid-point of a pipe pair
-    // static std::vector<bool> scoredPipes; // To keep track of which pipe pairs have been scored
-    // if (_ObstacleManager->getPipes().size() / 2 > scoredPipes.size()) {
-    //     scoredPipes.resize(_ObstacleManager->getPipes().size() / 2, false);
-    // }
-
-    // for (size_t i = 0; i < pipeManager->getPipes().size(); i += 2) {
-    //     // Check the bottom pipe of the pair (assuming pairs are always Top then Bottom)
-    //     const auto& bottomPipe = pipeManager->getPipes()[i+1];
-    //     if (bird->getX() > bottomPipe->getX() + bottomPipe->getWidth() && !scoredPipes[i/2]) {
-    //         scoreManager->incrementScore();
-    //         scoredPipes[i/2] = true;
-    //     }
-    // }
-    // Clean up scoredPipes when pipes are removed from pipeManager (TODO: more robust sync)
-    // Or, better, integrate scoring directly into PipeManager
-
-    // static int pipes_passed_since_last_difficulty_increase = 0;
-    // if (_ObstacleManager->_deletedPipes > 0 && _ObstacleManager->_deletedPipes % 2 == 0) {
-    //     int current_pairs_cleared = _ObstacleManager->_deletedPipes / 2;
-    //     if (current_pairs_cleared > _pipes_passed_for_difficulty) {
-    //         _pipes_passed_for_difficulty = current_pairs_cleared;
-    //         if (_pipes_passed_for_difficulty % 3 == 0) {
-    //             increaseDifficulty(0.1f);
-    //         }
-    //     }
-    // }
+                // Difficulty increase logic (now based on _currentScore)
+                if (_currentScore > 0 && _currentScore % 3 == 0) { // Every 3 points, increase difficulty
+                    static int last_difficulty_score_threshold = 0; // To prevent multiple increases for same score
+                    if (_currentScore > last_difficulty_score_threshold) {
+                        increaseDifficulty(0.1f);
+                        last_difficulty_score_threshold = _currentScore;
+                    }
+                }
+            }
+        }
+    }
 
     #ifdef DEBUG_BUILD // <--- NEW: Only set debugDraw if DEBUG_BUILD is defined
     for (const auto& pipe : _ObstacleManager->getPipes()) {
@@ -288,14 +263,14 @@ void Game::draw() {
 
     switch (currentState) {
         case MENU:
-            // drawMenu();
+            drawMenu();
             break;
         case PLAYING:
             drawPlaying();
             break;
         case GAME_OVER:
-            // drawPlaying(); // Draw game state one last time
-            // drawGameOver();
+            drawPlaying(); // Draw game state one last time
+            drawGameOver();
             break;
     }
 
@@ -308,6 +283,72 @@ void Game::drawPlaying() {
     this->_ground1->draw();
     this->_Bird->draw();
     // scoreManager->draw();
+    if (_gameFont) {
+        std::string scoreText = "Score: " + std::to_string(_currentScore);
+        // Draw centered at top of screen
+        float textWidth = al_get_text_width(_gameFont, scoreText.c_str());
+        al_draw_text(_gameFont, al_map_rgb(255, 255, 255), // White text
+                     (_screenWidth / 2) - (textWidth / 2), 20, // X: centered, Y: 20px from top
+                     ALLEGRO_ALIGN_LEFT, scoreText.c_str());
+    }
+}
+
+void Game::drawMenu() {
+    this->_Background->draw(); // Draw background for consistency
+    this->_ground1->draw(); // Draw ground
+
+    if (_gameFont) {
+        ALLEGRO_COLOR textColor = al_map_rgb(255, 255, 255); // White text
+
+        // Game Title
+        std::string title = "FLAPPY BIRD CLONE";
+        float titleWidth = al_get_text_width(_gameFont, title.c_str());
+        al_draw_text(_gameFont, textColor,
+                     (_screenWidth / 2) - (titleWidth / 2), _screenHeight * 0.10,
+                     ALLEGRO_ALIGN_LEFT, title.c_str());
+
+        // "Press SPACE to Play" instruction
+        std::string instruction = "Press SPACE to Play";
+        float instructionWidth = al_get_text_width(_gameFont, instruction.c_str());
+        al_draw_text(_gameFont, textColor,
+                     (_screenWidth / 2) - (instructionWidth / 2), _screenHeight * 0.25,
+                     ALLEGRO_ALIGN_LEFT, instruction.c_str());
+
+        // You could add your bird sprite animating here if you wish, or a static title screen image
+    }
+}
+
+void Game::drawGameOver() {
+    this->_Background->draw(); 
+    this->_ObstacleManager->draw(); 
+    this->_ground1->draw(); 
+    this->_Bird->draw(); 
+
+    if (_gameFont) {
+        ALLEGRO_COLOR textColor = al_map_rgb(255, 0, 0); // Red text for Game Over
+
+        // "Game Over!" text
+        std::string gameOverText = "GAME OVER!";
+        float gameOverWidth = al_get_text_width(_gameFont, gameOverText.c_str());
+        al_draw_text(_gameFont, textColor,
+                     (_screenWidth / 2) - (gameOverWidth / 2), _screenHeight * 0.10,
+                     ALLEGRO_ALIGN_LEFT, gameOverText.c_str());
+
+        // Display final score
+        ALLEGRO_COLOR scoreColor = al_map_rgb(255, 255, 255); // White text for score
+        std::string finalScoreText = "Score: " + std::to_string(_currentScore);
+        float finalScoreWidth = al_get_text_width(_gameFont, finalScoreText.c_str());
+        al_draw_text(_gameFont, scoreColor,
+                     (_screenWidth / 2) - (finalScoreWidth / 2), _screenHeight * 0.25,
+                     ALLEGRO_ALIGN_LEFT, finalScoreText.c_str());
+
+        // "Press SPACE to restart/return to menu" instruction
+        std::string restartInstruction = "Press SPACE to restart";
+        float restartWidth = al_get_text_width(_gameFont, restartInstruction.c_str());
+        al_draw_text(_gameFont, scoreColor, // Re-using scoreColor for instruction
+                     (_screenWidth / 2) - (restartWidth / 2), _screenHeight * 0.9,
+                     ALLEGRO_ALIGN_LEFT, restartInstruction.c_str());
+    }
 }
 
 bool Game::loadAssets() {
@@ -315,60 +356,37 @@ bool Game::loadAssets() {
     _topPipeSprite = al_load_bitmap("assets/top_pipe.png");
     _bottomPipeSprite = al_load_bitmap("assets/bottom_pipe.png");
     if (!_topPipeSprite || !_bottomPipeSprite) {
-        std::cerr << "Failed to load pipe sprites! Using fallback rectangles." << std::endl;
-        // Not returning false, just warning, so fallback rectangles are used
-        _topPipeSprite = nullptr;
-        _bottomPipeSprite = nullptr;
-        std::cout << "LoadAssets" << std::endl;
+        throw AssetLoadError("Failed to load pipe sprites (top_pipe.png or bottom_pipe.png). Check 'assets/' directory."); // THROW EXCEPTION
     }
 
     // Load Ground Sprite
     this->_groundSprite = al_load_bitmap("assets/ground.png");
     if (!this->_groundSprite) {
-        std::cerr << "Failed to load ground sprite! Using fallback rectangle." << std::endl;
-        this->_groundSprite = nullptr;
-    } else {
-        // Adjust groundYPosition based on ground sprite's actual height if loaded
-        // groundYPosition = screenHeight - al_get_bitmap_height(groundSprite);
+        throw AssetLoadError("Failed to load ground sprite (ground.png). Check 'assets/' directory."); // THROW EXCEPTION
     }
 
 
     // Load Background Sprite
     this->_backgroundSprite = al_load_bitmap("assets/background.png");
     if (!this->_backgroundSprite) {
-        std::cerr << "Failed to load background sprite! Using fallback color." << std::endl;
-        this->_backgroundSprite = nullptr;
+        throw AssetLoadError("Failed to load background sprite (background.png). Check 'assets/' directory."); // THROW EXCEPTION
     }
 
-    // // Load Font
-    // gameFont = al_load_font("assets/arial.ttf", 36, 0); // Assuming Arial font exists
-    // if (!gameFont) {
-    //     std::cerr << "Failed to load font! Make sure 'arial.ttf' is in 'assets/'." << std::endl;
-    //     gameFont = al_create_builtin_font(); // Fallback to built-in font
-    //     if (!gameFont) {
-    //         std::cerr << "Failed to create built-in font!" << std::endl;
-    //         return false;
-    //     }
-    // }
-
-// ALLEGRO_BITMAP* frame1_sub = al_create_sub_bitmap(master_sheet, x_offset_frame1, y_offset_frame1, 32, 24);
-// ALLEGRO_BITMAP* frame2_sub = al_create_sub_bitmap(master_sheet, x_offset_frame2, y_offset_frame2, 32, 24);
+    this->_gameFont = al_load_font("assets/PixelifySansFont.ttf", 36, 0); // Load font, size 36
+    if (!_gameFont) {
+        throw AssetLoadError("Failed to load font (arial.ttf). Check 'assets/' directory.");
+    }
 
     // NEW: Load Bird Sprites
-    _birdSprite1 = al_load_bitmap("assets/bird_1.png"); // Assuming you have these
-    _birdSprite2 = al_load_bitmap("assets/bird_1.png");
-    if (!_birdSprite1 || !_birdSprite2) {
-        std::cerr << "Failed to load bird sprites! Using fallback rectangle." << std::endl;
-        _birdSprite1 = nullptr; _birdSprite2 = nullptr;
+    this->_birdSprite1 = al_load_bitmap("assets/bird_1.png"); // Assuming you have these
+    this->_birdSprite2 = al_load_bitmap("assets/bird_1.png");
+    if (!this->_birdSprite1 || !this->_birdSprite2) {
+        throw AssetLoadError("Failed to load bird sprites (bird_1.png or bird_2.png). Check 'assets/' directory."); // THROW EXCEPTION
     } else {
-        _birdAnimationFrames.push_back(_birdSprite1);
-        _birdAnimationFrames.push_back(_birdSprite2);
+        this->_birdAnimationFrames.push_back(this->_birdSprite1);
+        this->_birdAnimationFrames.push_back(this->_birdSprite2);
     }
 
-    if (!this->_topPipeSprite || !this->_bottomPipeSprite || !this->_backgroundSprite || !this->_groundSprite) { // Added _groundSprite check
-        std::cerr << "One or more essential assets failed to load. Returning false." << std::endl;
-        return false;
-    }
 
     return true;
 }
@@ -381,38 +399,23 @@ void Game::destroyAssets() {
     if (this->_bottomPipeSprite) al_destroy_bitmap(this->_bottomPipeSprite);
     if (this->_groundSprite) al_destroy_bitmap(this->_groundSprite);
     if (this->_backgroundSprite) al_destroy_bitmap(this->_backgroundSprite);
-    // if (gameFont) al_destroy_font(gameFont);
+    if (this->_gameFont) { // NEW: Destroy the font
+        al_destroy_font(this->_gameFont);
+    }
 
     // Clear vector after destroying bitmaps
     // birdAnimationFrames.clear();
 }
 
 void Game::resetGame() {
-    // Reset bird position and velocity
-    // bird->setPosition(50, screenHeight / 2 - 20);
-    // bird->setVelocityY(0.0f);
+    this->_difficulty_scalar = 1.0f;
+    this->_currentScore = 0;
 
-    // Clear and reset pipes
-    this->_ObstacleManager = 
-        std::make_unique<ObstacleManager>(
-            this->_BASE_PIPE_SPAWN_INTERVAL, // spawnInterval
-            this->_BASE_PIPE_SCROLL_SPEED, // speed
-            this->_MIN_PIPE_GAP, // minGapY 
-            this->_MAX_PIPE_GAP, // maxGapY
-            this->_PIPE_WIDTH, // pipeWidth
-            this->_PIPE_HEIGHT, // pipeWidth
-            this->_screenWidth,
-            this->_screenHeight,
-            this->_topPipeSprite,
-            this->_bottomPipeSprite
-        );
+    // CALL THE NEW HELPER FUNCTION HERE
+    this->createGameElements(); // Replaces duplicated object recreation code
 
-    // Reset ground positions (if they moved off-screen)
-    // ground1->setPosition(0, groundYPosition);
-    // ground2->setPosition(screenWidth, groundYPosition);
-
-    // scoreManager->resetScore();
-    _lastFrameTime = al_get_time(); // Reset timer to prevent large deltaTime on restart
+    this->applyDifficultyScalar();
+    this->_lastFrameTime = al_get_time();
 }
 
 void Game::applyDifficultyScalar() {
@@ -433,3 +436,5 @@ void Game::increaseDifficulty(float increment) {
     std::cout << "Difficulty increased! New scalar: " << _difficulty_scalar << std::endl;
     applyDifficultyScalar(); // Reapply the new scalar to all objects
 }
+
+int Game::getCurrentScore(){ return this->_currentScore; };

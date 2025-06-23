@@ -105,6 +105,7 @@ void ObstacleManager::spawnPipes() {
             this->_pipeScrollSpeed, // speed
             this->_bottomPipeSprite, // bitmap
             false // _isTopPipe
+
         )
     );
 }

@@ -1,2 +1,5 @@
-src/ex.cpp
+obj/*
+bin/*
 .vscode
+helper.txt
+users.txt

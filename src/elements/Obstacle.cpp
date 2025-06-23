@@ -13,7 +13,7 @@ Obstacle::Obstacle(
     ALLEGRO_BITMAP* bitmap, 
     bool isTopPipe
     ) : Element(x, y, width, height, screenWidth, screenHeight, speed, bitmap), 
-    _isTopPipe(isTopPipe) {}
+    _isTopPipe(isTopPipe), _hasBeenScored(false) {}
 
 Obstacle::~Obstacle(){ 
     // std::cout << "Destruindo obstáculo" << std::endl; 
@@ -50,7 +50,11 @@ bool Obstacle::isOffScreen() const {
     return _x + _width < 0; // Verifica se o cano saiu da tela à esquerda
 }
 
-float Obstacle::getIsTopPipe() const { return _isTopPipe; }
+bool Obstacle::getIsTopPipe() const { return _isTopPipe; }
+
+bool Obstacle::getHasBeenScored() const { return _hasBeenScored; } // NEW: Getter for _hasBeenScored
+
+void Obstacle::setScored(bool scored) { _hasBeenScored = scored; } // NEW: Setter for _hasBeenScored
 
 void Obstacle::setScrollSpeed(float newSpeed) {
     _speed = newSpeed;
