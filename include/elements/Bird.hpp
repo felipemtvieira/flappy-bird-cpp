@@ -14,7 +14,7 @@ private:
     double _frameDuration;
 
     float _gracePeriodTimer; // Período de tempo em que o pássaro voa em linha reta antes de começar a cair
-    float _initialFlightDuration;
+    float _initialFlightDuration;//ATENCAO
 
 public:
     Bird(
@@ -42,4 +42,4 @@ public:
     void setJumpForce(float newJumpForce);
 };
 
-#endif // BIRD_HPP
+#endif

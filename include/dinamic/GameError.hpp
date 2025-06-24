@@ -53,4 +53,4 @@ public:
         : GameError("Opening User Register File Failed - " + message) {}
 };
 
-#endif // GAME_ERROR_HPP
+#endif

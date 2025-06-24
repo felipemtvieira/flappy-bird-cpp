@@ -26,4 +26,4 @@ public:
     void setScrollSpeed(float newSpeed);
 };
 
-#endif // GROUND_HPP
+#endif

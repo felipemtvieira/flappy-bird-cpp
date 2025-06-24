@@ -70,7 +70,7 @@ void ObstacleManager::spawnPipes() {
     float topPipeHeight = gapTopY;
 
     float bottomPipeY = gapTopY + currentGapHeight;
-    float bottomPipeHeight = groundYPosition - bottomPipeY; // Correctly calculated height
+    float bottomPipeHeight = groundYPosition - bottomPipeY;
 
     topPipeHeight = std::max(0.0f, topPipeHeight);
     bottomPipeHeight = std::max(0.0f, bottomPipeHeight);
@@ -80,11 +80,11 @@ void ObstacleManager::spawnPipes() {
             _screenWidth,        // _x
             topPipeY,            // _y
             this->_pipeWidth,    // _width
-            topPipeHeight,       // <-- CORRECT: Pass the CALCULATED height
-            this->_screenWidth,     // screenWidth for Element
-            this->_screenHeight,    // screenHeight for Element
-            this->_pipeScrollSpeed, // speed
-            this->_topPipeSprite,   // bitmap
+            topPipeHeight,       
+            this->_screenWidth,    
+            this->_screenHeight,    
+            this->_pipeScrollSpeed, 
+            this->_topPipeSprite,   
             true // _isTopPipe
         )
     );
@@ -94,11 +94,11 @@ void ObstacleManager::spawnPipes() {
             _screenWidth,         // _x
             bottomPipeY,          // _y
             this->_pipeWidth,
-            bottomPipeHeight,     // <-- CORRECT: Pass the CALCULATED height
-            this->_screenWidth,      // screenWidth for Element
-            this->_screenHeight,     // screenHeight for Element
-            this->_pipeScrollSpeed, // speed
-            this->_bottomPipeSprite, // bitmap
+            bottomPipeHeight,     
+            this->_screenWidth,      
+            this->_screenHeight,     
+            this->_pipeScrollSpeed, 
+            this->_bottomPipeSprite, 
             false // _isTopPipe
 
         )
@@ -106,7 +106,7 @@ void ObstacleManager::spawnPipes() {
 }
 
 const std::vector<std::unique_ptr<Obstacle>>& ObstacleManager::getPipes() const {
-    return this->_pipes; // <-- Return the actual _pipes member variable
+    return this->_pipes;
 }
 
 void ObstacleManager::setScrollSpeed(float newSpeed) {

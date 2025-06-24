@@ -15,9 +15,7 @@ Obstacle::Obstacle(
     ) : Element(x, y, width, height, screenWidth, screenHeight, speed, bitmap), 
     _isTopPipe(isTopPipe), _hasBeenScored(false) {}
 
-Obstacle::~Obstacle(){ 
-    // std::cout << "Destruindo obstáculo" << std::endl; 
-};
+Obstacle::~Obstacle(){};
 
 void Obstacle::draw(){
     if(this->_bitmap){
@@ -25,19 +23,19 @@ void Obstacle::draw(){
         float original_sprite_height = (float)al_get_bitmap_height(this->_bitmap);
 
         al_draw_scaled_bitmap(
-            this->_bitmap,                  // The bitmap to draw
-            0, 0,                    // Source X, Y (start from top-left of the original bitmap)
-            original_sprite_width,   // Source width (entire original bitmap width)
-            original_sprite_height,  // Source height (entire original bitmap height)
-            this->_x, this->_y,                    // Destination X, Y (where to draw on screen)
-            this->_width, this->_height,           // Destination width, height (the desired size)
-            0                        // Flags (e.g., ALLEGRO_FLIP_HORIZONTAL)
+            this->_bitmap,                  
+            0, 0,                           
+            original_sprite_width,          
+            original_sprite_height,         
+            this->_x, this->_y,             
+            this->_width, this->_height,    
+            0                               
         );
     };
     
     #ifdef DEBUG_BUILD 
     if (_debugDraw) {
-        al_draw_rectangle(_x, _y, _x + _width, _y + _height, al_map_rgb(255, 0, 255), 2); // Magenta outline
+        al_draw_rectangle(_x, _y, _x + _width, _y + _height, al_map_rgb(255, 0, 255), 2); // Retângulo Magenta
     }
     #endif
 }
@@ -52,9 +50,9 @@ bool Obstacle::isOffScreen() const {
 
 bool Obstacle::getIsTopPipe() const { return this->_isTopPipe; }
 
-bool Obstacle::getHasBeenScored() const { return this->_hasBeenScored; } // NEW: Getter for _hasBeenScored
+bool Obstacle::getHasBeenScored() const { return this->_hasBeenScored; }
 
-void Obstacle::setScored(bool scored) { this->_hasBeenScored = scored; } // NEW: Setter for _hasBeenScored
+void Obstacle::setScored(bool scored) { this->_hasBeenScored = scored; }
 
 void Obstacle::setScrollSpeed(float newSpeed) {
     this->_speed = newSpeed;

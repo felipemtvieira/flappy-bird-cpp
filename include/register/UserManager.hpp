@@ -15,7 +15,6 @@ private:
     void saveUsers() const;
 
 public:
-    // Constructor: carrega usuários do arquivo especificado
     UserManager(const std::string& filename = "users.txt");
     ~UserManager();
 

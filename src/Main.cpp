@@ -70,8 +70,6 @@ int main() {
         } else if (command == "exit") {
             std::cout << "Exiting Flappy Bird CLI. Goodbye!" << std::endl;
             break;
-        } else if (command.empty()) {
-            // Do nothing
         }
         else {
             std::cout << "Unknown command: '" << command << "'" << std::endl;

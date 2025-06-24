@@ -62,51 +62,42 @@ void Bird::draw() {
         );
     }
 
-    #ifdef DEBUG_BUILD // <--- NEW: Only compile this block if DEBUG_BUILD is defined
-    if (_debugDraw) { // Still use the _debugDraw flag to allow runtime control
+    #ifdef DEBUG_BUILD
+    if (_debugDraw) {
         al_draw_rectangle(getColliderX(), getColliderY(),
                           getColliderX() + getColliderWidth(), getColliderY() + getColliderHeight(),
-                          al_map_rgb(255, 0, 255), 2); // Magenta outline for collider
+                          al_map_rgb(255, 0, 255), 2);
     }
-    #endif // DEBUG_BUILD
+    #endif
 }
 
 void Bird::update(double deltaTime) {
     if (this->_gracePeriodTimer < this->_initialFlightDuration) {
         this->_gracePeriodTimer += deltaTime;
-        // Optionally, make it drift slightly up or down during grace period if not perfectly straight
-        // For truly "straight", do nothing with _speed or _y here.
-        // If you want it to move *slightly* forward or have a tiny vertical drift, you can add it here.
-        // For now, it means _speed remains 0.0 unless jump() is called.
     } else {
-        // Grace period over, apply normal physics
-        this->_speed += this->_gravity * deltaTime; // Apply gravity to _speed
+        this->_speed += this->_gravity * deltaTime; 
     }
-    this->_y += this->_speed * deltaTime; // Update Element's _y position
+    this->_y += this->_speed * deltaTime; 
 
-    // Simple boundary check (e.g., prevent bird from going too high or falling too low)
+    
     if (this->_y < 0) {
         this->_y = 0;
         this->_speed = 0;
     }
-    // Bird should fall to the ground, so no upper bound on Y here related to groundYPosition in Game.
-    // Collision with ground is handled by CollisionManager in Game.
-
-    // Animation update
+    
     this->_animationTimer += deltaTime;
     if (this->_animationTimer >= this->_frameDuration) {
         this->_currentFrame = (this->_currentFrame + 1) % this->_animationFrames.size();
-        this->_bitmap = _animationFrames[this->_currentFrame]; // Update Element's _bitmap for current frame
+        this->_bitmap = _animationFrames[this->_currentFrame]; 
         this->_animationTimer -= this->_frameDuration;
     }
 }
 
 void Bird::jump() {
-    this->_speed = -this->_jumpForce; // <-- Apply jump force to _speed (velocity)
+    this->_speed = -this->_jumpForce; 
     this->_gracePeriodTimer = this->_initialFlightDuration;
 }
 
-// Setters remain the same, as they already manipulate _gravity and _jumpForce.
 void Bird::setGravity(float newGravity) {
     this->_gravity = newGravity;
 }

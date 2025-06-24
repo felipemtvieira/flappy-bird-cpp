@@ -2,7 +2,6 @@
 #include <iostream>
 #include <sstream>
 #include <limits>
-#include <iomanip> // For std::setw, std::left
 
 UserManager::UserManager(const std::string& filename)
     : _filename(filename) {

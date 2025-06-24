@@ -1,5 +1,4 @@
-obj/*
 bin/*
-.vscode
-helper.txt
+obj/*
 users.txt
+.vscode

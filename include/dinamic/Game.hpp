@@ -64,9 +64,9 @@ private:
     // Constantes relacionadas ao pássado
     static constexpr float _BASE_GRAVITY = 900.0f;
     static constexpr float _BASE_JUMP_FORCE = 300.0f;
-    static constexpr float _BIRD_WIDTH = 60.0f; // Tamanho lógico (um pouco menor do que o aspecto visual do pássaro)
-    static constexpr float _BIRD_HEIGHT = 50.0f; // Tamanho lógico
-    static constexpr float _INITIAL_BIRD_FLIGHT_DURATION = 10.0f;
+    static constexpr float _BIRD_WIDTH = 60.0f; // Tamanho do retângulo de colisão (um pouco menor do que o aspecto visual do pássaro)
+    static constexpr float _BIRD_HEIGHT = 50.0f; // Tamanho do retângulo de colisão
+    static constexpr float _INITIAL_BIRD_FLIGHT_DURATION = 3.0f;
 
 
 public:
@@ -97,4 +97,4 @@ public:
     int getCurrentScore();
 };
 
-#endif 
+#endif

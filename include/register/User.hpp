@@ -17,4 +17,4 @@ struct User {
         : name(name), nickname(nickname), score(score), gamesPlayed(gamesPlayed), bestScore(bestScore) {}
 };
 
-#endif // USER_HPP
+#endif
